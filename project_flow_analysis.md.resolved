@@ -1,0 +1,97 @@
+# ProcXa-AI: Project Flow Analysis
+
+This document provides a detailed overview of the ProcXa-AI system architecture, user roles, and core business workflows.
+
+## System Architecture
+
+ProcXa-AI is built using a modern full-stack architecture:
+- **Frontend**: React.js with Vite, Bootstrap for styling, and React Router for navigation.
+- **Backend**: Node.js with Express, Sequelize ORM for database management.
+- **Database**: MySQL (relational database).
+
+## User Roles & Permissions
+
+| Role | Description | Key Responsibilities |
+| :--- | :--- | :--- |
+| **SuperAdmin** | Full system control | Manage Admins, License Generation, System Configuration |
+| **Admin** | Organizational control | Manage Departments, Contracts, Approval Flows, Suppliers |
+| **Dept/User** | Operational role | Create Intake Requests, Track Department Spend, Review Renewals |
+
+---
+
+## Core Workflows
+
+### 1. Intake to Contract Flow
+The primary lifecycle of a procurement item starts with an intake request and ends in the contract warehouse.
+
+```mermaid
+graph TD
+    A[Department User] -->|Creates| B(Intake Request)
+    B --> C{Approval Workflow}
+    C -->|Approver 1| D[Pending Approval]
+    D -->|Approver 2| E[Final Approval]
+    E --> F[Contract Warehouse]
+    F -->|Template/Upload| G(Active Contract)
+    C -->|Rejection| H[Rejected Request]
+```
+
+### 2. Renewal Management Flow
+Ensures contracts are proactively managed before expiry.
+
+```mermaid
+graph LR
+    A[Renewal Alert] --> B[Notification System]
+    B --> C[Admin Review]
+    C --> D{Action}
+    D -->|Renew| E[Renewal Webform]
+    D -->|Automate| F[Renewal Automation]
+    D -->|Terminate| G[Contract Archived]
+    E --> H[Updated Contract]
+    F --> H
+```
+
+---
+
+## Module Breakdown
+
+### [1] Intake Management
+- **Intake Dashboard**: Real-time status tracking of all requests.
+- **Category Management**: Defining procurement categories and subcategories.
+- **Request Creation**: Capturing business requirements and budget details.
+
+### [2] Approval Workflow
+- **Flow Engine**: Admins define multi-stage approval paths (e.g., Finance -> Legal -> CEO).
+- **Status Tracking**: Visual progress of where a request is stuck.
+
+### [3] Contract Management
+- **Contract Warehouse**: Centralized repository for all signed agreements.
+- **Template Builder**: Standardizing contract language across the organization.
+- **AI Analytics**: Intelligent insights into contract terms and obligations.
+
+### [4] Savings & Analytics
+- **Cost Saving Opportunities**: Identifies volume discounts and supplier consolidation.
+- **Spend Analytics**: Visualizes historical spend trends and department budgets.
+- **Intelligent Insights**: AI-driven recommendations for license optimization and cost reduction.
+
+### [5] Supplier Performance
+- **Ratings & Reviews**: Tracking vendor compliance and quality.
+- **Supplier Comparison**: Comparing multiple vendors during the intake process.
+
+---
+
+## Data Flow (Backend)
+
+1. **API Layer**: Express routes (`/procxa/*`) handle incoming requests.
+2. **Middleware**: JWT authentication and role-based guards.
+3. **Controller Layer**: Business logic handles data processing (e.g., [license.controller.js](file:///d:/mukul_procxa/proxca_backend_mukul/src/controller/license_controller/license.controller.js)).
+4. **Model Layer**: Sequelize models ([license.model.js](file:///d:/mukul_procxa/proxca_backend_mukul/src/model/license_model/license.model.js), [department.model.js](file:///d:/mukul_procxa/proxca_backend_mukul/src/model/department.model/department.model.js)) define schema.
+5. **Database**: Persistent storage in MySQL.
+
+---
+
+## How to Export this Document to PDF
+
+To save this analysis as a PDF:
+1. Open this document in a Markdown viewer or VS Code.
+2. If using VS Code, use the **"Markdown PDF: Export (pdf)"** extension.
+3. Alternatively, copy the content into a Word document or Google Docs and select **File > Download > PDF Document**.

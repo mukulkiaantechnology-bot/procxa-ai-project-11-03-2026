@@ -66,6 +66,7 @@ import LicenseManagement from "./components/license/LicenseManagement";
 import ClientLicenseManagement from "./components/license/ClientLicenseManagement";
 import InventoryDashboard from "./components/inventory/InventoryDashboard";
 import IntelligentInsights from "./components/insights/IntelligentInsights";
+import Profile from "./components/user/Profile";
 
 function App() {
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
@@ -251,6 +252,7 @@ function App() {
               <Route path="/inventory-management" element={<InventoryDashboard />} />
               <Route path="/license-management" element={<LicenseManagement />} />
               <Route path="/intelligent-insights" element={<IntelligentInsights />} />
+              <Route path="/profile" element={<Profile />} />
 
             </Routes>
           </div>

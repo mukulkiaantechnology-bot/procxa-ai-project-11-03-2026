@@ -297,9 +297,17 @@ const Navbar = ({ toggleSidebar }) => {
                 <li>
                   <Link
                     className="dropdown-item"
+                    to="/profile"
+                    onClick={() => setIsDropdownOpen(false)}>
+                    <i className="fa-regular fa-user me-2"></i> Profile
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    className="dropdown-item"
                     to="/"
                     onClick={() => setIsDropdownOpen(false)}>
-                    Logout
+                    <i className="fa-solid fa-arrow-right-from-bracket me-2"></i> Logout
                   </Link>
                 </li>
               </ul>

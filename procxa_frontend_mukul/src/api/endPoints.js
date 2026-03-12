@@ -3,6 +3,9 @@ const endpoints = {
     registration: "/procxa/registration",
     login: "/procxa/login",
     refreshToken: "/procxa/refresh_token",
+    getProfile: "/procxa/get_profile",
+    updateProfile: "/procxa/update_profile",
+    changePassword: "/procxa/change_password",
 
     // 📁 Category & Subcategory
     addCategory: "/procxa/add_category",

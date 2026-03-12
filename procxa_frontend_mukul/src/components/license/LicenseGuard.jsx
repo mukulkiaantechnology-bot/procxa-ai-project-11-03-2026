@@ -24,9 +24,9 @@ const LicenseGuard = ({ children }) => {
         return;
       }
 
-      // Check if user is SuperAdmin - SuperAdmin never needs license
+      // Check if user is SuperAdmin, Admin or Department - These roles don't need activation screen
       const userType = localStorage.getItem("userType");
-      if (userType === "superadmin") {
+      if (["superadmin", "admin", "department"].includes(userType)) {
         setIsLicenseValid(true);
         setIsChecking(false);
         return;

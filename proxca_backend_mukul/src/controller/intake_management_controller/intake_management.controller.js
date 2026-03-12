@@ -442,10 +442,16 @@ const get_intake_request_by_id = async (req, res) => {
 
     const { id } = req.params;
 
-    // Build where clause - Admin users can only see their own requests
+    // Build where clause - Filter based on role for visibility access
     const whereClause = { id };
     if (!isSuperAdmin && userId) {
-      whereClause.userId = userId;
+      if (userType === 'department') {
+        // Department users can see requests where they are the requester department
+        whereClause.requesterDepartmentId = userId;
+      } else {
+        // Admin/SuperAdmin (usually users table) see based on their userId
+        whereClause.userId = userId;
+      }
     }
 
     const intake = await intakeRequest.findOne({

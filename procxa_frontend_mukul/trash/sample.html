@@ -1,0 +1,76 @@
+<!DOCTYPE html><html lang="en"><head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Train AI</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet"/>
+    <link href="https://ai-public.creatie.ai/gen_page/tailwind-custom.css" rel="stylesheet"/>
+    <script src="https://cdn.tailwindcss.com/3.4.5?plugins=forms@0.5.7,typography@0.5.13,aspect-ratio@0.4.2,container-queries@0.1.1"></script>
+    <script src="https://ai-public.creatie.ai/gen_page/tailwind-config.min.js" data-color="#000000" data-border-radius="small"></script>
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <div class="max-w-8xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <header class="text-center mb-12">
+            <h1 class="text-4xl font-bold text-gray-900 mb-4">Train AI</h1>
+            <p class="text-lg text-gray-600">Configure and manage your AI training settings</p>
+        </header>
+        <div class="space-y-8">
+            <section class="bg-white rounded-lg shadow-sm p-6">
+                <h2 class="text-xl font-semibold text-gray-900 mb-4">API Key Configuration</h2>
+                <div class="flex gap-4">
+                    <div class="flex-1">
+                        <input type="password" placeholder="Enter your API key" class="w-full border-gray-300 focus:border-custom focus:ring-custom rounded-button"/>
+                    </div>
+                    <button class="px-4 py-2 bg-custom text-white !rounded-button hover:bg-opacity-90">
+                        <i class="fas fa-save mr-2"></i>Save API Key
+                    </button>
+                    <button class="px-4 py-2 border border-gray-300 text-gray-700 !rounded-button hover:bg-gray-50">
+                        <i class="fas fa-check-circle mr-2"></i>Validate
+                    </button>
+                </div>
+            </section>
+            <section class="bg-white rounded-lg shadow-sm p-6">
+                <h2 class="text-xl font-semibold text-gray-900 mb-4">Prompt Configuration</h2>
+                <textarea rows="6" placeholder="Enter your prompt here..." class="w-full border-gray-300 focus:border-custom focus:ring-custom rounded-lg mb-4"></textarea>
+                <div class="flex gap-4">
+                    <button class="px-4 py-2 bg-custom text-white !rounded-button hover:bg-opacity-90">
+                        <i class="fas fa-save mr-2"></i>Save Prompt
+                    </button>
+                    <button class="px-4 py-2 border border-gray-300 text-gray-700 !rounded-button hover:bg-gray-50">
+                        <i class="fas fa-times mr-2"></i>Clear
+                    </button>
+                </div>
+            </section>
+            <section class="bg-white rounded-lg shadow-sm p-6">
+                <h2 class="text-xl font-semibold text-gray-900 mb-4">URL Management</h2>
+                <div class="flex gap-4">
+                    <div class="flex-1">
+                        <input type="url" placeholder="Enter endpoint URL" class="w-full border-gray-300 focus:border-custom focus:ring-custom rounded-button"/>
+                    </div>
+                    <button class="px-4 py-2 bg-custom text-white !rounded-button hover:bg-opacity-90">
+                        <i class="fas fa-link mr-2"></i>Set URL
+                    </button>
+                    <button class="px-4 py-2 border border-gray-300 text-gray-700 !rounded-button hover:bg-gray-50">
+                        <i class="fas fa-network-wired mr-2"></i>Test Connection
+                    </button>
+                </div>
+            </section>
+            <section class="bg-white rounded-lg shadow-sm p-6">
+                <h2 class="text-xl font-semibold text-gray-900 mb-4">Prompt Management</h2>
+                <div class="flex gap-4">
+                    <button class="px-4 py-2 bg-custom text-white !rounded-button hover:bg-opacity-90">
+                        <i class="fas fa-list mr-2"></i>View All Prompts
+                    </button>
+                    <button class="px-4 py-2 border border-gray-300 text-gray-700 !rounded-button hover:bg-gray-50">
+                        <i class="fas fa-download mr-2"></i>Export Prompts
+                    </button>
+                </div>
+            </section>
+            
+        </div>
+    </div>
+    <footer class="mt-12 py-6 bg-gray-100">
+        <div class="max-w-8xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-gray-600">
+            <p>© 2024 Train AI. All rights reserved.</p>
+        </div>
+    </footer>

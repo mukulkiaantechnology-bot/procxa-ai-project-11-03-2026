@@ -1,0 +1,1342 @@
+* {
+  margin: 0px;
+  padding: 0px;
+}
+
+.container {
+  margin-top: 10px;
+  margin-bottom: 10px;
+}
+
+@font-face {
+  font-family: "Unbanist";
+  src: url("path-to-your-font/Unbanist.woff2") format("woff2"),
+    url("path-to-your-font/Unbanist.woff") format("woff");
+  font-weight: normal;
+  font-style: normal;
+}
+
+body {
+  font-family: "Unbanist", sans-serif !important;
+  background-color: #f2f2f2;
+}
+
+a {
+  text-decoration: none;
+  color: black;
+}
+
+li {
+  list-style-type: none;
+}
+
+/* login */
+main {
+  position: fixed;
+  top: 61px;
+  left: 535px;
+  width: 100vh;
+  /* height: 100vh; */
+}
+
+/* Mobile (320px - 480px) */
+@media (min-width: 320px) and (max-width: 480px) {
+  main {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 90vw;
+    max-width: 400px;
+    height: auto;
+  }
+}
+
+/* Tablet (481px - 1024px) */
+@media (min-width: 481px) and (max-width: 768px) {
+  main {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 80vw;
+    max-width: 450px;
+    height: auto;
+  }
+}
+
+@media (min-width: 769px) and (max-width: 1024px) {
+  main {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 500px;
+    height: auto;
+  }
+}
+
+/* Laptop (1025px - 1440px) */
+@media (min-width: 1025px) and (max-width: 1440px) {
+  main {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 500px;
+  }
+}
+
+/* Large screens (1440px+) */
+@media (min-width: 1441px) {
+  main {
+    position: fixed;
+    top: 61px;
+    left: 535px;
+    width: 100vh;
+  }
+}
+
+.login-container {
+  background: transparent;
+  border-radius: 8px;
+  padding: 30px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  text-align: center;
+  max-width: 500px;
+  width: 100%;
+}
+
+/* Mobile responsive for login container */
+@media (max-width: 480px) {
+  .login-container {
+    padding: 20px;
+    font-size: 14px;
+  }
+
+  .login-container h1 {
+    font-size: 24px;
+  }
+
+  .login-container input {
+    font-size: 14px;
+    padding: 10px;
+  }
+
+  .login-container button {
+    font-size: 14px;
+    padding: 10px;
+    width: 100%;
+  }
+}
+
+/* Tablet responsive for login */
+@media (min-width: 481px) and (max-width: 768px) {
+  .login-container {
+    padding: 25px;
+    font-size: 15px;
+  }
+}
+
+/* signup */
+.signup-container {
+  background: transparent;
+  border-radius: 8px;
+  padding: 30px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  text-align: center;
+  max-width: 800px;
+  width: 100%;
+  margin: 0 auto;
+}
+
+.signup-form {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.form-row {
+  display: flex;
+  gap: 15px;
+  width: 100%;
+}
+
+.form-input {
+  flex: 1;
+  padding: 12px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 16px;
+  width: 100%;
+}
+
+/* Responsive Design for Signup */
+@media (max-width: 480px) {
+  .signup-container {
+    max-width: 95%;
+    padding: 15px;
+    margin-top: 20px;
+  }
+
+  .app-title {
+    font-size: 24px;
+  }
+
+  .welcome-text {
+    font-size: 14px;
+  }
+
+  .form-row {
+    flex-direction: column;
+    width: 100%;
+    gap: 10px;
+  }
+
+  .form-input {
+    font-size: 14px;
+    padding: 10px;
+    width: 100%;
+  }
+
+  .siignup-button,
+  .loogin-button {
+    font-size: 14px;
+    padding: 10px;
+    width: 100%;
+  }
+
+  .loogin-button {
+    margin-right: 0;
+    margin-top: 10px;
+  }
+
+  select.form-input {
+    background-color: #fff;
+    color: #666;
+    height: 46px;
+    width: 100%;
+  }
+}
+
+@media (min-width: 481px) and (max-width: 768px) {
+  .signup-container {
+    max-width: 90%;
+    padding: 20px;
+  }
+
+  .form-row {
+    flex-direction: row;
+    width: 100%;
+  }
+
+  .form-input {
+    font-size: 14px;
+    padding: 10px;
+  }
+
+  .loogin-button {
+    margin-right: 0;
+  }
+}
+
+@media (min-width: 769px) and (max-width: 1024px) {
+  .signup-container {
+    max-width: 600px;
+  }
+
+  .loogin-button {
+    margin-right: 200px;
+  }
+}
+
+/* signup end */
+
+/* maindashbord start */
+.main-content {
+  display: flex;
+  width: 100%;
+  overflow-x: hidden;
+}
+
+/* maindashbord end */
+/* navbar start */
+.navbar {
+  height: 85px;
+  border-bottom: 1px solid #949494;
+  position: fixed;
+  z-index: 5;
+  background-color: white;
+  width: 100%;
+}
+
+.nav-conte {
+  margin: 0px 30px;
+}
+
+.nav-brand {
+  color: #578e7e;
+  line-height: 54.46px;
+  font-size: 45px;
+  font-weight: 700;
+  font-family: inter;
+}
+
+/* Toggle button - Hidden on desktop/tablet, visible ONLY on mobile (≤640px) */
+.nav-taggle-icon {
+  display: none;
+}
+
+/* Mobile ONLY (≤640px) - Show toggle button */
+@media (max-width: 640px) {
+  .nav-taggle-icon {
+    display: block;
+    margin-left: 10px !important;
+    font-size: 24px;
+    cursor: pointer;
+  }
+}
+
+/* Mobile (320px - 480px) */
+@media (max-width: 480px) {
+  .navbar {
+    height: 70px;
+    padding: 0 10px;
+  }
+
+  .nav-conte {
+    margin: 0px 10px;
+  }
+
+  .nav-brand {
+    font-size: 24px;
+    line-height: 40px;
+  }
+
+  .nav-main-icon {
+    font-size: 18px;
+  }
+
+  .nav-main-icon i {
+    margin: 0 5px;
+  }
+}
+
+/* Tablet (481px - 768px) */
+@media (min-width: 481px) and (max-width: 768px) {
+  .navbar {
+    height: 75px;
+    padding: 0 15px;
+  }
+
+  .nav-conte {
+    margin: 0px 15px;
+  }
+
+  .nav-brand {
+    font-size: 32px;
+    line-height: 45px;
+  }
+}
+
+/* Mobile navbar spacing fixes */
+@media (max-width: 640px) {
+  .nav-content {
+    gap: 5px;
+  }
+
+  .nav-bran {
+    gap: 5px;
+    min-width: 0;
+    flex: 1;
+  }
+
+  .nav-brand {
+    flex-shrink: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 20px;
+  }
+
+  .nav-main-icon {
+    gap: 0;
+    flex-shrink: 0;
+  }
+
+  .nav-main-icon i {
+    margin: 10px 5px;
+    font-size: 18px;
+  }
+
+  .nav-taggle-icon {
+    margin-left: 5px;
+    flex-shrink: 0;
+  }
+}
+
+.bell-icon {
+  color: #949494;
+}
+
+.bell-icon:hover {
+  color: #949494;
+}
+
+.user-icon {
+  color: #578e7e;
+}
+
+.user-icon:hover {
+  color: #578e7e;
+}
+
+/* navbar end  */
+/* right-side-content start*/
+.right-side-content {
+  width: 100%;
+  margin-top: 85px;
+  padding-left: 320px;
+  padding-right: 20px;
+  padding-bottom: 20px;
+  transition: padding-left 0.3s;
+  overflow-x: hidden;
+  box-sizing: border-box;
+}
+
+/* Mobile (≤640px) - Sidebar is hidden by default, overlay when open */
+@media (max-width: 640px) {
+  .right-side-content {
+    margin-top: 70px;
+    padding-left: 10px;
+    padding-right: 10px;
+    padding-bottom: 10px;
+  }
+}
+
+/* Tablet (641px - 1024px) - Sidebar visible */
+@media (min-width: 641px) and (max-width: 1024px) {
+  .right-side-content {
+    margin-top: 85px;
+    padding-left: 280px;
+    padding-right: 15px;
+    padding-bottom: 15px;
+  }
+}
+
+/* Laptop/Desktop (≥1025px) - Sidebar always visible, fixed width */
+@media (min-width: 1025px) {
+  .right-side-content {
+    padding-left: 320px;
+    padding-right: 20px;
+    padding-bottom: 20px;
+  }
+}
+
+/* right-side-content end */
+/* dashbord */
+.dashboardcard {
+  text-align: center;
+  border-radius: 10px;
+  font-size: 1.2rem;
+}
+
+@media (max-width: 480px) {
+  .dashboardcard {
+    font-size: 0.9rem;
+  }
+}
+
+@media (min-width: 481px) and (max-width: 768px) {
+  .dashboardcard {
+    font-size: 1rem;
+  }
+}
+
+/* dashbord end */
+/* intake management */
+.portalcard {
+  text-align: center;
+  padding: 5px 0px;
+  border-radius: 10px;
+  font-size: 1.2rem;
+}
+
+@media (max-width: 480px) {
+  .portalcard {
+    font-size: 0.9rem;
+    padding: 3px 0px;
+  }
+}
+
+@media (min-width: 481px) and (max-width: 768px) {
+  .portalcard {
+    font-size: 1rem;
+    padding: 4px 0px;
+  }
+}
+
+/* intake management end */
+
+/* contract details */
+.contract-details-container {
+  padding: 20px;
+}
+
+@media (max-width: 768px) {
+  .contract-details-container {
+    padding: 15px;
+    flex-direction: column;
+  }
+}
+
+@media (max-width: 480px) {
+  .contract-details-container {
+    padding: 10px;
+  }
+}
+
+/* contract details end */
+
+/* header */
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+@media (max-width: 768px) {
+  .header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 15px;
+  }
+}
+
+.email-template-btn {
+  margin-left: auto;
+}
+
+@media (max-width: 768px) {
+  .email-template-btn {
+    margin-left: 0;
+    width: 100%;
+  }
+}
+
+/* header end */
+
+/* notification button group */
+.notifi-button-group {
+  display: flex;
+  gap: 10px;
+}
+
+@media (max-width: 640px) {
+  .notifi-button-group {
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .notifi-button-group button {
+    width: 100%;
+  }
+}
+
+/* notification button group end */
+
+/* Global responsive styles */
+@media (max-width: 768px) {
+  .container {
+    padding-left: 10px;
+    padding-right: 10px;
+  }
+
+  .table {
+    font-size: 0.875rem;
+  }
+
+  .card {
+    margin-bottom: 1rem;
+  }
+
+  .form-control {
+    font-size: 0.9rem;
+    padding: 0.5rem 0.75rem;
+  }
+
+  .btn {
+    font-size: 0.9rem;
+    padding: 0.5rem 1rem;
+  }
+
+  .dropdown-menu {
+    font-size: 0.9rem;
+    min-width: auto;
+    width: 100%;
+  }
+
+  .dropdown-item {
+    padding: 0.5rem 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .container {
+    padding-left: 5px;
+    padding-right: 5px;
+    margin-top: 5px;
+    margin-bottom: 5px;
+  }
+
+  .table {
+    font-size: 0.75rem;
+  }
+
+  .card {
+    margin-bottom: 0.75rem;
+  }
+
+  .card-title {
+    font-size: 1.25rem;
+  }
+
+  .card-body {
+    padding: 1rem 0.75rem;
+  }
+
+  .form-control {
+    font-size: 0.875rem;
+    padding: 0.5rem;
+  }
+
+  .btn {
+    font-size: 0.875rem;
+    padding: 0.5rem 0.75rem;
+  }
+
+  .btn-sm {
+    font-size: 0.75rem;
+    padding: 0.25rem 0.5rem;
+  }
+
+  h1 {
+    font-size: 1.75rem;
+  }
+
+  h2 {
+    font-size: 1.5rem;
+  }
+
+  h3 {
+    font-size: 1.25rem;
+  }
+
+  h4 {
+    font-size: 1.1rem;
+  }
+
+  h5 {
+    font-size: 1rem;
+  }
+
+  h6 {
+    font-size: 0.9rem;
+  }
+
+  .pagination {
+    font-size: 0.875rem;
+    flex-wrap: wrap;
+  }
+
+  .page-link {
+    padding: 0.375rem 0.5rem;
+  }
+}
+
+@media (min-width: 481px) and (max-width: 768px) {
+  h1 {
+    font-size: 2rem;
+  }
+
+  h2 {
+    font-size: 1.75rem;
+  }
+
+  h3 {
+    font-size: 1.5rem;
+  }
+
+  h4 {
+    font-size: 1.25rem;
+  }
+
+  h5 {
+    font-size: 1.1rem;
+  }
+}
+
+/* Responsive Styles for Notification Container */
+@media (max-width: 480px) {
+  .notification-container {
+    padding: 15px 10px;
+    padding-top: 20px;
+    margin-top: 10px;
+  }
+
+  .header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 15px;
+  }
+
+  .email-template-btn {
+    align-self: flex-start;
+    margin-bottom: 0;
+    margin-top: 0;
+    width: 100%;
+    text-align: center;
+  }
+
+  .title {
+    font-size: 20px;
+  }
+
+  .subtitle {
+    font-size: 12px;
+  }
+
+  .form-label {
+    font-size: 13px;
+  }
+
+  .form-select {
+    font-size: 14px;
+    padding: 8px;
+  }
+
+  .toggle-item label {
+    font-size: 13px;
+  }
+
+  .reset-button,
+  .save-button {
+    font-size: 14px;
+    padding: 10px;
+    width: 100%;
+  }
+}
+
+@media (min-width: 481px) and (max-width: 768px) {
+  .notification-container {
+    padding: 20px 15px;
+    padding-top: 40px;
+  }
+
+  .email-template-btn {
+    align-self: flex-end;
+    margin-bottom: 15px;
+    margin-top: 5px;
+  }
+
+  .title {
+    font-size: 22px;
+  }
+}
+
+@media (min-width: 769px) and (max-width: 1024px) {
+  .notification-container {
+    padding: 20px;
+    padding-top: 45px;
+  }
+}
+
+/* renewalnoti */
+.renual-top {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 15px;
+}
+
+@media (max-width: 768px) {
+  .renual-top {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}
+
+/* Container responsive */
+@media (max-width: 480px) {
+  .container {
+    margin-top: 5px;
+    margin-bottom: 5px;
+    padding-left: 10px;
+    padding-right: 10px;
+  }
+}
+
+@media (min-width: 481px) and (max-width: 768px) {
+  .container {
+    margin-top: 8px;
+    margin-bottom: 8px;
+    padding-left: 15px;
+    padding-right: 15px;
+  }
+}
+
+/* Global responsive table styles - NO TEXT OVERFLOW */
+@media (max-width: 768px) {
+  .table {
+    font-size: 0.875rem;
+  }
+
+  .table th,
+  .table td {
+    padding: 0.5rem 0.25rem;
+    white-space: normal;
+    word-wrap: break-word;
+    word-break: break-word;
+    overflow-wrap: break-word;
+    max-width: 150px;
+  }
+
+  .table-responsive {
+    border: none;
+    -webkit-overflow-scrolling: touch;
+    overflow-x: auto;
+    display: block;
+    width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .table {
+    font-size: 0.75rem;
+  }
+
+  .table th,
+  .table td {
+    padding: 0.4rem 0.2rem;
+    white-space: normal;
+    word-wrap: break-word;
+    word-break: break-word;
+    overflow-wrap: break-word;
+    max-width: 120px;
+    min-width: 80px;
+  }
+
+  .table th {
+    font-size: 0.7rem;
+  }
+
+  .table-responsive {
+    font-size: 0.7rem;
+  }
+}
+
+/* Global responsive card styles */
+@media (max-width: 480px) {
+  .card {
+    margin-bottom: 1rem;
+  }
+
+  .card-title {
+    font-size: 1.25rem;
+  }
+
+  .card-body {
+    padding: 1rem 0.75rem;
+  }
+}
+
+/* Global responsive form styles */
+@media (max-width: 768px) {
+  .form-control {
+    font-size: 0.9rem;
+    padding: 0.5rem 0.75rem;
+  }
+
+  .btn {
+    font-size: 0.9rem;
+    padding: 0.5rem 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .form-control {
+    font-size: 0.875rem;
+    padding: 0.5rem;
+  }
+
+  .btn {
+    font-size: 0.875rem;
+    padding: 0.5rem 0.75rem;
+  }
+
+  .btn-sm {
+    font-size: 0.75rem;
+    padding: 0.25rem 0.5rem;
+  }
+}
+
+/* Global responsive heading styles */
+@media (max-width: 480px) {
+  h1 {
+    font-size: 1.75rem;
+  }
+
+  h2 {
+    font-size: 1.5rem;
+  }
+
+  h3 {
+    font-size: 1.25rem;
+  }
+
+  h4 {
+    font-size: 1.1rem;
+  }
+
+  h5 {
+    font-size: 1rem;
+  }
+
+  h6 {
+    font-size: 0.9rem;
+  }
+}
+
+@media (min-width: 481px) and (max-width: 768px) {
+  h1 {
+    font-size: 2rem;
+  }
+
+  h2 {
+    font-size: 1.75rem;
+  }
+
+  h3 {
+    font-size: 1.5rem;
+  }
+
+  h4 {
+    font-size: 1.25rem;
+  }
+
+  h5 {
+    font-size: 1.1rem;
+  }
+}
+
+/* Global responsive dropdown styles */
+@media (max-width: 768px) {
+  .dropdown-menu {
+    font-size: 0.9rem;
+    min-width: auto;
+    width: 100%;
+  }
+
+  .dropdown-item {
+    padding: 0.5rem 1rem;
+  }
+}
+
+/* Global responsive pagination */
+@media (max-width: 480px) {
+  .pagination {
+    font-size: 0.875rem;
+    flex-wrap: wrap;
+  }
+
+  .page-link {
+    padding: 0.375rem 0.5rem;
+  }
+}
+
+/* Prevent horizontal overflow - GLOBAL */
+body,
+html {
+  overflow-x: hidden;
+  max-width: 100%;
+  word-wrap: break-word;
+  word-break: break-word;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+/* Global text overflow prevention - CRITICAL */
+* {
+  max-width: 100%;
+}
+
+/* Prevent text overflow in all elements */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+p,
+span,
+div,
+td,
+th,
+label,
+input,
+textarea,
+select,
+button,
+a,
+li {
+  word-wrap: break-word;
+  word-break: break-word;
+  overflow-wrap: break-word;
+  hyphens: auto;
+}
+
+/* Table cells - allow wrapping but prevent overflow */
+table {
+  table-layout: auto;
+  width: 100%;
+}
+
+th,
+td {
+  word-wrap: break-word;
+  word-break: break-word;
+  overflow-wrap: break-word;
+}
+
+th {
+  white-space: nowrap;
+  word-break: normal;
+  max-width: none;
+}
+
+td {
+  max-width: 200px;
+}
+
+@media (max-width: 768px) {
+
+  th,
+  td {
+    font-size: 0.875rem;
+    padding: 0.5rem 0.25rem;
+  }
+
+  th {
+    white-space: nowrap;
+    word-break: normal;
+    max-width: none;
+  }
+
+  td {
+    max-width: 150px;
+    white-space: normal;
+    word-wrap: break-word;
+    word-break: break-word;
+  }
+}
+
+@media (max-width: 480px) {
+
+  th,
+  td {
+    font-size: 0.75rem;
+    padding: 0.4rem 0.2rem;
+  }
+
+  th {
+    font-size: 0.7rem;
+    white-space: nowrap;
+    word-break: normal;
+    max-width: none;
+  }
+
+  td {
+    max-width: 120px;
+    white-space: normal;
+    word-wrap: break-word;
+    word-break: break-word;
+  }
+}
+
+/* Cards - prevent overflow */
+.card {
+  max-width: 100%;
+  overflow: hidden;
+}
+
+.card-title,
+.card-text,
+.card-body {
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  max-width: 100%;
+}
+
+/* Forms - prevent overflow */
+.form-control,
+.form-select,
+input,
+textarea,
+select {
+  max-width: 100%;
+  word-wrap: break-word;
+  box-sizing: border-box;
+}
+
+/* Buttons - prevent overflow */
+.btn {
+  white-space: normal;
+  word-wrap: break-word;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+@media (max-width: 480px) {
+  .btn {
+    font-size: 0.875rem;
+    padding: 0.5rem 0.75rem;
+    white-space: normal;
+    text-align: center;
+    width: 100%;
+  }
+
+  .btn-sm {
+    font-size: 0.7rem;
+    padding: 0.3rem 0.5rem;
+  }
+}
+
+/* Badges - prevent overflow */
+.badge {
+  white-space: normal;
+  word-wrap: break-word;
+  max-width: 100%;
+  display: inline-block;
+  font-size: 0.875rem;
+}
+
+@media (max-width: 480px) {
+  .badge {
+    font-size: 0.75rem;
+    padding: 0.25rem 0.5rem;
+  }
+}
+
+/* Modals - responsive */
+.modal-dialog {
+  max-width: 95%;
+  margin: 1rem auto;
+}
+
+@media (max-width: 480px) {
+  .modal-dialog {
+    max-width: 100%;
+    margin: 0.5rem;
+  }
+
+  .modal-content {
+    padding: 1rem 0.5rem;
+  }
+
+  .modal-body {
+    padding: 1rem 0.5rem;
+    font-size: 0.875rem;
+  }
+
+  .modal-header h5 {
+    font-size: 1rem;
+  }
+}
+
+/* Responsive button groups */
+@media (max-width: 640px) {
+
+  .d-flex.gap-2,
+  .d-flex.gap-3 {
+    flex-direction: column;
+    gap: 0.5rem !important;
+    align-items: stretch !important;
+  }
+
+  .d-flex.gap-2 button,
+  .d-flex.gap-3 button {
+    width: 100%;
+  }
+}
+
+/* Responsive flex containers */
+@media (max-width: 768px) {
+  .d-flex {
+    flex-wrap: wrap;
+  }
+
+  .justify-content-between {
+    justify-content: flex-start;
+    gap: 10px;
+  }
+}
+
+@media (max-width: 480px) {
+  .d-flex {
+    flex-direction: column;
+  }
+
+  .justify-content-between {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}
+
+/* Prevent text overflow in specific components */
+.creatable-select-container,
+.react-select-container {
+  max-width: 100%;
+  word-wrap: break-word;
+}
+
+/* Responsive images and iframes */
+img,
+iframe,
+video {
+  max-width: 100%;
+  height: auto;
+}
+
+/* Responsive canvas (for charts) */
+canvas {
+  max-width: 100%;
+  height: auto;
+}
+
+@media (max-width: 480px) {
+  canvas {
+    max-height: 250px;
+  }
+}
+
+/* Responsive text alignment */
+@media (max-width: 480px) {
+  .text-center {
+    text-align: center !important;
+  }
+
+  .text-start {
+    text-align: left !important;
+  }
+
+  .text-end {
+    text-align: right !important;
+  }
+}
+
+/* Ensure no horizontal scroll */
+.row {
+  margin-left: 0;
+  margin-right: 0;
+}
+
+.col-12,
+.col-md-6,
+.col-md-4,
+.col-md-3,
+.col-lg-3,
+.col-lg-4,
+.col-lg-6 {
+  padding-left: 8px;
+  padding-right: 8px;
+}
+
+@media (max-width: 480px) {
+
+  .col-12,
+  .col-md-6,
+  .col-md-4,
+  .col-md-3,
+  .col-lg-3,
+  .col-lg-4,
+  .col-lg-6 {
+    padding-left: 5px;
+    padding-right: 5px;
+  }
+}
+
+/* Responsive spacing */
+@media (max-width: 480px) {
+
+  .mb-3,
+  .mb-4,
+  .mb-5 {
+    margin-bottom: 1rem !important;
+  }
+
+  .mt-3,
+  .mt-4,
+  .mt-5 {
+    margin-top: 1rem !important;
+  }
+
+  .p-3,
+  .p-4,
+  .p-5 {
+    padding: 0.75rem !important;
+  }
+}
+
+/* Fix for long text in cells */
+.table td {
+  vertical-align: middle;
+}
+
+@media (max-width: 768px) {
+  .table td {
+    vertical-align: top;
+  }
+}
+
+/* Ensure all containers are responsive */
+.container-fluid {
+  padding-left: 10px;
+  padding-right: 10px;
+}
+
+@media (max-width: 480px) {
+  .container-fluid {
+    padding-left: 5px;
+    padding-right: 5px;
+  }
+}
+
+/* Contract Status Badges */
+.activebadge {
+  background-color: #28a745 !important;
+  color: white !important;
+}
+
+.expiredbadge {
+  background-color: #dc3545 !important;
+  color: white !important;
+}
+
+.renewalbadge {
+  background-color: #ffc107 !important;
+  color: black !important;
+}
+
+.terminatedbadge {
+  background-color: #6c757d !important;
+  color: white !important;
+}
+
+.renewedbadge {
+  background-color: #17a2b8 !important;
+  color: white !important;
+}

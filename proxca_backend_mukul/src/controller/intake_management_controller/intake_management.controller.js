@@ -643,14 +643,23 @@ const delete_intake_request = async (req, res) => {
       whereClause.userId = userId;
     }
 
-    const deletedRequest = await intakeRequest.destroy({ where: whereClause });
-
-    if (deletedRequest === 0) {
+    // ✅ Step 1: Check if the request exists and is accessible
+    const request = await intakeRequest.findOne({ where: whereClause });
+    if (!request) {
       return res.status(404).json({
         status: false,
         message: "Intake request not found"
       });
     }
+
+    // ✅ Step 2: Manually delete dependent records to satisfy foreign key constraints
+    await intake_request_approvers.destroy({ where: { intakeRequestId: id } });
+    await procurement_request_approvers.destroy({ where: { intakeRequestId: id } });
+    await intake_request_comment.destroy({ where: { requestId: id } });
+    await assignIntakeRequest.destroy({ where: { requestId: id } });
+
+    // ✅ Step 3: Delete the main intake request
+    await request.destroy();
 
     return res.status(200).json({
       status: true,

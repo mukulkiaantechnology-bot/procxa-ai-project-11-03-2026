@@ -18,6 +18,7 @@ const ApprovalWork = () => {
   const navigate = useNavigate();
   const userType = localStorage.getItem("userType");
   const isAdminOrSuperAdmin = userType === "admin" || userType === "superadmin";
+  const isAuthorizedUser = isAdminOrSuperAdmin || userType === "department";
   const [selectedRequestForFlow, setSelectedRequestForFlow] = useState(null);
   const [showFlowModal, setShowFlowModal] = useState(false);
 
@@ -196,7 +197,7 @@ const ApprovalWork = () => {
                       </div>
                     </div>
 
-                    {isAdminOrSuperAdmin && (
+                    {isAuthorizedUser && (
                       <div className="mt-3 pt-2 border-top">
                         <small className="text-muted d-block mb-2" style={{ fontSize: "clamp(0.7rem, 2vw, 0.8rem)" }}>Select Contract Template:</small>
                         <div className="d-flex flex-column gap-2">
@@ -204,7 +205,7 @@ const ApprovalWork = () => {
                             <select
                               className="form-select w-100"
                               value={selectedContracts[item.id] || ""}
-                              disabled={!isEditable || !isAdminOrSuperAdmin}
+                              disabled={!isEditable || !isAuthorizedUser}
                               onChange={(e) =>
                                 handleContractChange(item.id, e.target.value)
                               }
@@ -240,7 +241,7 @@ const ApprovalWork = () => {
 
                           </div>
 
-                          {isAdminOrSuperAdmin && (
+                          {isAuthorizedUser && (
                             <div className="mt-2 text-center">
                               {isEditable ? (
                                 <button
@@ -324,7 +325,7 @@ const ApprovalWork = () => {
                               className="form-select flex-fill"
                               style={{ minWidth: "150px", fontSize: "clamp(0.875rem, 1.5vw, 1rem)" }}
                               value={selectedContracts[item.id] || ""}
-                              disabled={!isEditable || !isAdminOrSuperAdmin}
+                              disabled={!isEditable || !isAuthorizedUser}
                               onChange={(e) =>
                                 handleContractChange(item.id, e.target.value)
                               }
@@ -362,7 +363,7 @@ const ApprovalWork = () => {
                             )}
 
                             
-                            {isAdminOrSuperAdmin && (
+                            {isAuthorizedUser && (
                               isEditable ? (
                                 <button
                                   className="btn btn-sm btn-success flex-shrink-0"

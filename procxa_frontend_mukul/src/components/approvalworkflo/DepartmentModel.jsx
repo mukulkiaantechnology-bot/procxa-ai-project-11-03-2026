@@ -14,6 +14,8 @@ const DepartmentModal = ({
   isAdminOrSuperAdmin,
 }) => {
   const { del, patch, post } = useApi();
+  const userType = localStorage.getItem("userType");
+  const isAuthorized = isAdminOrSuperAdmin || userType === "department";
 
   const [isEditing, setIsEditing] = useState(false);
   const [editedName, setEditedName] = useState("");
@@ -376,8 +378,8 @@ const DepartmentModal = ({
             </div>
 
 
-            {/* Approve/Reject Actions — Only for Admin/SuperAdmin */}
-            {isAdminOrSuperAdmin && (
+            {/* Approve/Reject Actions — For Admin/SuperAdmin/Department */}
+            {isAuthorized && (
               <div className="mt-4 pt-3 border-top">
                 <h6 className="mb-3">Approval Actions</h6>
                 <div className="d-flex gap-2">
@@ -403,11 +405,11 @@ const DepartmentModal = ({
                 )}
               </div>
             )}
-            {!isAdminOrSuperAdmin && (
+            {!isAuthorized && (
               <div className="mt-4 pt-3 border-top">
                 <p className="text-muted fst-italic mb-0">
                   <i className="fa-solid fa-lock me-2"></i>
-                  Only Admin / SuperAdmin can perform Approve or Reject actions.
+                  Only Authorized Users can perform Approve or Reject actions.
                 </p>
               </div>
             )}

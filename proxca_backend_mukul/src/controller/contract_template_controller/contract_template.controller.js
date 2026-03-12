@@ -26,7 +26,7 @@ const add_contract_template = async (req, res) => {
       customAgreementFile,
       aggrementName,
       templateContent, // <--- Save it
-      admin_id: req.user.userType === 'admin' ? req.user.id : null,
+      admin_id: (req.user.userType === 'admin' || req.user.userType === 'department') ? req.user.id : null,
     });
 
     return res.status(201).json({
@@ -96,7 +96,7 @@ const get_all_contract_templates = async (req, res) => {
   try {
     let whereCondition = {};
 
-    if (req.user.userType === 'admin') {
+    if (req.user.userType === 'admin' || req.user.userType === 'department') {
       whereCondition.admin_id = req.user.id;
     }
 
@@ -127,7 +127,7 @@ const get_contract_template_by_id = async (req, res) => {
 
     let whereCondition = { id };
 
-    if (req.user.userType === 'admin') {
+    if (req.user.userType === 'admin' || req.user.userType === 'department') {
       whereCondition.admin_id = req.user.id;
     }
 
@@ -174,7 +174,7 @@ const update_contract_template = async (req, res) => {
 
     let whereCondition = { id };
 
-    if (req.user.userType === 'admin') {
+    if (req.user.userType === 'admin' || req.user.userType === 'department') {
       whereCondition.admin_id = req.user.id;
     }
 
@@ -219,7 +219,7 @@ const delete_contract_template = async (req, res) => {
 
     let whereCondition = { id };
 
-    if (req.user.userType === 'admin') {
+    if (req.user.userType === 'admin' || req.user.userType === 'department') {
       whereCondition.admin_id = req.user.id;
     }
 

@@ -215,9 +215,8 @@ const get_all_intake_requests = async (req, res) => {
           { id: assignedIds.length > 0 ? { [Op.in]: assignedIds } : 0 }
         ];
       } else if (userType === 'admin') {
-        // Admin should see everything or at least departmental intakes. 
-        // Based on request: "intake admin ko dikhna chiaye"
-        // No filter for admin to allow broader visibility
+        // Admin should see only their own data (and department data mapped to their userId)
+        where.userId = userId;
       } else {
         // Standard Manager/User sees only their own created requests
         where.userId = userId;
@@ -350,7 +349,8 @@ const get_all_not_pending_intake_requests = async (req, res) => {
           { id: assignedIds.length > 0 ? { [Op.in]: assignedIds } : 0 }
         ];
       } else if (userType === 'admin') {
-         // Admin can see department entries
+         // Admin should see only their own data
+         where.userId = userId;
       } else {
         where.userId = userId;
       }

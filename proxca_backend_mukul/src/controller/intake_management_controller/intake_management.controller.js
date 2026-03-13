@@ -545,9 +545,17 @@ const update_intake_request = async (req, res) => {
     const { id } = req.params;
     const { status } = req.body;
 
-    // Build where clause - Admin users can only update their own requests
+    console.log(`[UPDATE_INTAKE] User: ${userId}, Type: ${userType}, RequestID: ${id}`);
+
+    const isSuperAdmin = userType === 'superadmin';
+    const isAdmin = userType === 'admin';
+    const isDepartment = userType === 'department';
+
+    // Build where clause
     const whereClause = { id };
-    if (!isSuperAdmin && userId) {
+    
+    // Only 'user' type (regular employees) should be restricted to their own requests
+    if (!isSuperAdmin && !isAdmin && !isDepartment && userId) {
       whereClause.userId = userId;
     }
 

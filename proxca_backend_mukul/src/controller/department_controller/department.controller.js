@@ -368,6 +368,8 @@ const assign_request_flow = async (req, res) => {
       userType: 'department'
     }));
 
+    console.log("APPROVER ENTRIES:", JSON.stringify(approverEntries, null, 2));
+
     await db.intake_request_approvers.bulkCreate(approverEntries, { transaction });
 
     await transaction.commit();
@@ -378,7 +380,10 @@ const assign_request_flow = async (req, res) => {
     });
   } catch (error) {
     await transaction.rollback();
-    console.error("Error assigning request flow:", error);
+    console.error("ASSIGN_REQUEST_FLOW_ERROR:", error);
+    if (error.parent) {
+      console.error("SQL_ERROR_DETAILS:", error.parent);
+    }
     res.status(500).json({
       status: false,
       message: "Failed to assign approval flow.",
@@ -389,7 +394,7 @@ const assign_request_flow = async (req, res) => {
 
 const update_department_workflow_status = async (req, res) => {
   try {
-    const { intakeRequestId, status, departmentId, comment } = req.body;
+    const { intakeRequestId, status, departmentId, comment, assigncontractTemplateId } = req.body;
 
     if (!intakeRequestId || !status) {
       return res.status(400).json({ status: false, message: "intakeRequestId and status are required." });
@@ -404,30 +409,53 @@ const update_department_workflow_status = async (req, res) => {
     if (!targetDepartmentId) {
       return res.status(400).json({ status: false, message: "Department ID is required." });
     }
-    // 1. Update the status in intake_request_approvers
-    const [updated] = await db.intake_request_approvers.update(
-      { status, comments: comment },
-      { where: { intakeRequestId, userId: targetDepartmentId } }
-    );
 
-    if (updated === 0) {
-      return res.status(404).json({ status: false, message: "Approver record not found for this department and request." });
-    }
+    const transaction = await db.sequelize.transaction();
+    try {
+      console.log(`[WORKFLOW_UPDATE] ReqID: ${intakeRequestId}, DeptID: ${targetDepartmentId}, Status: ${status}, Contract: ${assigncontractTemplateId}`);
 
-    // 2. Add a comment to the intake_request_comment table as well for history
-    if (comment) {
-      await db.intake_request_comment.create({
-        requestId: intakeRequestId,
-        userId: req.user?.id || null, // Logged in user who made the action
-        commentMessage: `${status.toUpperCase()}: ${comment}`,
-        userType: req.user?.userType || 'department'
+      // 1. Update the status in intake_request_approvers
+      const [updated] = await db.intake_request_approvers.update(
+        { status, comments: comment },
+        { where: { intakeRequestId, userId: targetDepartmentId }, transaction }
+      );
+
+      console.log(`[WORKFLOW_UPDATE] Approver records updated: ${updated}`);
+
+      if (updated === 0) {
+        await transaction.rollback();
+        return res.status(404).json({ status: false, message: `Approver record not found for request ${intakeRequestId} and department ${targetDepartmentId}.` });
+      }
+
+      // 2. If a contract template is provided, override it in the main intake_request
+      if (assigncontractTemplateId) {
+        console.log(`[WORKFLOW_UPDATE] Overriding contract template to: ${assigncontractTemplateId}`);
+        await db.intake_request.update(
+          { assigncontractTemplateId },
+          { where: { id: intakeRequestId }, transaction }
+        );
+      }
+
+      // 3. Add a comment to the intake_request_comment table as well for history
+      if (comment) {
+        await db.intake_request_comment.create({
+          requestId: intakeRequestId,
+          userId: req.user?.id || null, // Logged in user who made the action
+          commentMessage: `${status.toUpperCase()}: ${comment}${assigncontractTemplateId ? ' (Contract Template Updated)' : ''}`,
+          userType: req.user?.userType || 'department',
+          departmentId: targetDepartmentId
+        }, { transaction });
+      }
+
+      await transaction.commit();
+      res.status(200).json({
+        status: true,
+        message: `Department status updated to ${status} successfully.`,
       });
+    } catch (err) {
+      await transaction.rollback();
+      throw err;
     }
-
-    res.status(200).json({
-      status: true,
-      message: `Department status updated to ${status} successfully.`,
-    });
   } catch (error) {
     console.error("Error updating department workflow status:", error);
     res.status(500).json({

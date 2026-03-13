@@ -94,15 +94,38 @@ const ApprovalWork = () => {
       return;
     }
 
+    setLoading(true);
     try {
-      await patch(`${endpoints.updateIntakeRequest}/${requestId}`, {
-        assigncontractTemplateId: contractId,
-      });
-      alert("Contract assigned successfully!");
+      if (userType === "department") {
+        const confirmMsg = `Do you want to assign this contract and mark your department's approval as APPROVED?`;
+        if (!window.confirm(confirmMsg)) return;
+
+        const deptId = localStorage.getItem("userId");
+        const response = await patch(`${endpoints.update_workflow_status}`, {
+          intakeRequestId: requestId,
+          departmentId: deptId,
+          status: "approved",
+          comment: "Contract Assigned & Approved from table dropdown",
+          assigncontractTemplateId: contractId,
+        });
+
+        if (response.status) {
+          alert("Contract assigned and department approved successfully!");
+        } else {
+          alert(response.message || "Failed to update status");
+        }
+      } else {
+        await patch(`${endpoints.updateIntakeRequest}/${requestId}`, {
+          assigncontractTemplateId: contractId,
+        });
+        alert("Contract assigned successfully!");
+      }
       fetchApprovalRequests(pagination.currentPage);
     } catch (error) {
       console.error("Error assigning contract:", error);
       alert("Failed to assign contract.");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -341,23 +364,28 @@ const ApprovalWork = () => {
                             </select>
 
                             {item.contractTemplate ? (
-                              <button
-                                className="btn btn-sm btn-outline-info flex-shrink-0"
-                                onClick={() => {
-                                  if (item.contractTemplate?.customAgreementFile) {
-                                    const filePath = item.contractTemplate.customAgreementFile;
-                                    const url = filePath.startsWith('http') 
-                                      ? filePath 
-                                      : `${import.meta.env.VITE_APP_API_BASE_URL || ""}/${filePath.replace(/\\/g, "/")}`;
-                                    window.open(url, "_blank");
-                                  } else {
-                                    alert("No PDF file associated with this template.");
-                                  }
-                                }}
-                                title={`View ${item.contractTemplate.aggrementName || 'Contract'} PDF`}
-                              >
-                                <i className="fa-solid fa-eye"></i>
-                              </button>
+                              <div className="d-flex align-items-center gap-2">
+                                <span className="text-secondary small fw-bold" style={{ maxWidth: "150px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                                  {item.contractTemplate.aggrementName}
+                                </span>
+                                <button
+                                  className="btn btn-sm btn-outline-info flex-shrink-0"
+                                  onClick={() => {
+                                    if (item.contractTemplate?.customAgreementFile) {
+                                      const filePath = item.contractTemplate.customAgreementFile;
+                                      const url = filePath.startsWith('http') 
+                                        ? filePath 
+                                        : `${import.meta.env.VITE_APP_API_BASE_URL || ""}/${filePath.replace(/\\/g, "/")}`;
+                                      window.open(url, "_blank");
+                                    } else {
+                                      alert("No PDF file associated with this template.");
+                                    }
+                                  }}
+                                  title={`View ${item.contractTemplate.aggrementName || 'Contract'} PDF`}
+                                >
+                                  <i className="fa-solid fa-eye"></i>
+                                </button>
+                              </div>
                             ) : (
                                <span className="text-muted small">No Template</span>
                             )}

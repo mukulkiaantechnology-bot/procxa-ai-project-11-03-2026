@@ -29,12 +29,41 @@ const get_dashboard_data = async (req, res) => {
             where: adminWhereClause
         });
         const totalIntakeRequests = await IntakeRequest.count({ where: adminWhereClause });
+
+        // Heuristic to find "Completed" projects: Intake Requests that are approved AND have a linked contract via the assigned supplier
         const projectsCompleted = await IntakeRequest.count({
-            where: { ...adminWhereClause, status: 'approved' }
+            distinct: true,
+            col: 'id',
+            where: { ...adminWhereClause, status: 'approved' },
+            include: [{
+                model: db.assign_intake_request,
+                as: 'assignIntakeRequest',
+                required: true,
+                include: [{
+                    model: db.supplier,
+                    as: 'supplier',
+                    required: true,
+                    include: [{
+                        model: db.contract,
+                        as: 'contracts',
+                        required: true,
+                        where: adminWhereClause
+                    }]
+                }]
+            }]
         });
-        const projectsActive = await IntakeRequest.count({
+
+        // "Active" projects: Intake Requests that are explicitly 'active' OR 'approved' but don't have a contract yet
+        const approvedWithoutContract = await IntakeRequest.count({
+            where: { ...adminWhereClause, status: 'approved' }
+        }) - projectsCompleted;
+
+        const explicitlyActive = await IntakeRequest.count({
             where: { ...adminWhereClause, status: 'active' }
         });
+
+        const projectsActive = explicitlyActive + approvedWithoutContract;
+
         const expiringContractsCount = await Contract.count({
             where: {
                 endDate: { [Op.between]: [moment().toDate(), moment().add(30, 'days').toDate()] },

@@ -97,7 +97,10 @@ const get_all_contract_templates = async (req, res) => {
     let whereCondition = {};
 
     if (req.user.userType === 'admin' || req.user.userType === 'department') {
-      whereCondition.admin_id = req.user.id;
+      whereCondition[Op.or] = [
+        { admin_id: req.user.id },
+        { admin_id: null }
+      ];
     }
 
     const templates = await ContractTemplate.findAll({

@@ -243,9 +243,17 @@ const Login = () => {
                   type="button"
                   className="btn btn-sm border flex-fill"
                   style={{ color: "#578e7e", borderColor: "#578e7e" }}
-                  onClick={() => setLoginData({ email: "contractdepartment@gmail.com", password: "123456" })}
+                  onClick={() => setLoginData({ email: "it@gmail.com", password: "123456" })}
                 >
-                  Dept Login
+                  It dept Login
+                </button>
+                <button
+                  type="button"
+                  className="btn btn-sm border flex-fill"
+                  style={{ color: "#578e7e", borderColor: "#578e7e" }}
+                  onClick={() => setLoginData({ email: "sales@gmail.com", password: "123456" })}
+                >
+                  Sales dept Login
                 </button>
               </div>
             </div>

@@ -3,7 +3,7 @@ import useApi from "../../hooks/useApi";
 import endpoints from "../../api/endPoints";
 
 const AddSupplier = () => {
-  const { post, get } = useApi();
+  const { post, get, patch, del } = useApi();
   const [formData, setFormData] = useState({
     name: "",
     contactEmail: "",
@@ -25,8 +25,12 @@ const AddSupplier = () => {
 
   const [message, setMessage] = useState({});
   const [categories, setCategories] = useState([]);
-  const [subcategories, setSubcategories] = useState([]);
   const [departments, setDepartments] = useState([]);
+  const [suppliers, setSuppliers] = useState([]);
+  const [isEditing, setIsEditing] = useState(false);
+  const [editId, setEditId] = useState(null);
+  const [showViewModal, setShowViewModal] = useState(false);
+  const [selectedSupplier, setSelectedSupplier] = useState(null);
 
   useEffect(() => {
     const fetchCategories = async () => {
@@ -58,24 +62,24 @@ const AddSupplier = () => {
     fetchDepartments();
   }, []);
 
-  const handleCategoryChange = async (e) => {
-    const selectedCategory = e.target.value;
-    setFormData({ ...formData, categoryId: selectedCategory, subcategoryId: "" });
-
-    if (selectedCategory) {
-      try {
-        const response = await get(`${endpoints.getSubCategory}?categoryId=${selectedCategory}`);
-        if (response) {
-          // Handle both response.subcategories and response.data
-          const subcats = response.subcategories || response.data || [];
-          setSubcategories(subcats);
-        }
-      } catch (error) {
-        setMessage({ type: "error", message: error.message });
+  const fetchSuppliers = async () => {
+    try {
+      const response = await get(endpoints.getSuppliers);
+      if (response && response.data) {
+        setSuppliers(response.data);
       }
-    } else {
-      setSubcategories([]);
+    } catch (error) {
+      console.error("Error fetching suppliers:", error);
     }
+  };
+
+  useEffect(() => {
+    fetchSuppliers();
+  }, []);
+
+  const handleCategoryChange = (e) => {
+    const selectedCategory = e.target.value;
+    setFormData({ ...formData, categoryId: selectedCategory });
   };
 
   const handleChange = (e) => {
@@ -89,9 +93,15 @@ const AddSupplier = () => {
     e.preventDefault();
     
     try {
-      const response = await post(endpoints.addSupplier, formData);
+      let response;
+      if (isEditing) {
+        response = await patch(`${endpoints.updateSupplier}/${editId}`, formData);
+      } else {
+        response = await post(endpoints.addSupplier, formData);
+      }
+      
       if (response && response.status) {
-        setMessage({ type: "success", message: "Supplier added successfully!" });
+        setMessage({ type: "success", message: isEditing ? "Supplier updated successfully!" : "Supplier added successfully!" });
         
         // Reset form
         setFormData({
@@ -107,12 +117,13 @@ const AddSupplier = () => {
           discountPercent: "",
           status: "active",
           categoryId: "",
-          subcategoryId: "",
           departmentId: "",
           deliveryTerms: "",
           additionalBenefits: "",
         });
-        setSubcategories([]);
+        setIsEditing(false);
+        setEditId(null);
+        fetchSuppliers(); // Refresh list
       } else {
         setMessage({ type: "error", message: response?.message || "Failed to add supplier. Please try again." });
       }
@@ -125,6 +136,53 @@ const AddSupplier = () => {
     setTimeout(() => {
       setMessage({});
     }, 3000);
+  };
+
+  const handleEdit = (supplier) => {
+    setFormData({
+      name: supplier.name || "",
+      contactEmail: supplier.contactEmail || "",
+      contactPhone: supplier.contactPhone || "",
+      address: supplier.address || "",
+      taxId: supplier.taxId || "",
+      bankDetails: supplier.bankDetails || "",
+      paymentTerms: supplier.paymentTerms || "",
+      perUnitPrice: supplier.perUnitPrice || "",
+      maxUnitPurchase: supplier.maxUnitPurchase || "",
+      discountPercent: supplier.discountPercent || "",
+      status: supplier.status || "active",
+      categoryId: supplier.categoryId || "",
+      departmentId: supplier.departmentId || "",
+      deliveryTerms: supplier.deliveryTerms || "",
+      additionalBenefits: supplier.additionalBenefits || "",
+    });
+    setEditId(supplier.id);
+    setIsEditing(true);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  const handleView = (supplier) => {
+    setSelectedSupplier(supplier);
+    setShowViewModal(true);
+  };
+
+  const handleDelete = async (id) => {
+    if (window.confirm("Are you sure you want to delete this supplier?")) {
+      try {
+        const response = await del(`${endpoints.deleteSupplier || '/procxa/delete_supplier'}/${id}`);
+        
+        if (response && response.status) {
+           setMessage({ type: "success", message: "Supplier deleted successfully!" });
+           fetchSuppliers();
+        } else {
+           setMessage({ type: "error", message: response?.message || "Failed to delete supplier." });
+        }
+      } catch (error) {
+        console.error("Error deleting supplier:", error);
+        setMessage({ type: "error", message: "Error deleting supplier." });
+      }
+      setTimeout(() => setMessage({}), 3000);
+    }
   };
 
   return (
@@ -206,24 +264,7 @@ const AddSupplier = () => {
                     </select>
                   </div>
 
-                  {/* Subcategory */}
-                  <div className="mb-3 col-md-6">
-                    <label className="form-label fw-semibold">Subcategory</label>
-                    <select
-                      className="form-select"
-                      name="subcategoryId"
-                      value={formData.subcategoryId}
-                      onChange={handleChange}
-                      disabled={!formData.categoryId}
-                    >
-                      <option value="">Select Subcategory</option>
-                      {subcategories.map((subcategory) => (
-                        <option key={subcategory.id} value={subcategory.id}>
-                          {subcategory.name}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
+
 
                   {/* Department */}
                   <div className="mb-3 col-md-6">
@@ -340,15 +381,157 @@ const AddSupplier = () => {
                     className="btn btn-primary px-5"
                     style={{ backgroundColor: "#578e7e", border: "none" }}
                   >
-                    <i className="fa-solid fa-save me-2"></i>
-                    Submit
+                    <i className={isEditing ? "fa-solid fa-pen me-2" : "fa-solid fa-save me-2"}></i>
+                    {isEditing ? "Update" : "Submit"}
                   </button>
+                  {isEditing && (
+                    <button
+                      type="button"
+                      className="btn btn-secondary px-5 ms-3"
+                      onClick={() => {
+                        setIsEditing(false);
+                        setEditId(null);
+                        setFormData({
+                          name: "", contactEmail: "", contactPhone: "", address: "", taxId: "",
+                          bankDetails: "", paymentTerms: "", perUnitPrice: "", maxUnitPurchase: "",
+                          discountPercent: "", status: "active", categoryId: "", departmentId: "",
+                          deliveryTerms: "", additionalBenefits: "",
+                        });
+                      }}
+                    >
+                      Cancel
+                    </button>
+                  )}
                 </div>
               </form>
             </div>
           </div>
         </div>
       </div>
+
+      {/* Supplier List Table */}
+      <div className="row justify-content-center mt-5">
+        <div className="col-12 col-lg-10 col-xl-11">
+          <div className="card shadow">
+            <div className="card-header bg-light">
+              <h4 className="text-center mb-0 py-2">Supplier Overview</h4>
+            </div>
+            <div className="card-body p-4 table-responsive">
+              <table className="table table-hover table-bordered align-middle text-center">
+                <thead className="table-light">
+                  <tr>
+                    <th>S.No</th>
+                    <th>Supplier Name</th>
+                    <th>Email</th>
+                    <th>Category</th>
+                    <th>Department</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {suppliers.map((supplier, index) => (
+                    <tr key={supplier.id}>
+                      <td>{index + 1}</td>
+                      <td>{supplier.name}</td>
+                      <td>{supplier.contactEmail}</td>
+                      <td>{supplier.category?.name || "-"}</td>
+                      <td>{supplier.department?.name || "-"}</td>
+                      <td>
+                        <span className={`badge ${supplier.status === "active" ? "bg-success" : "bg-danger"}`}>
+                          {supplier.status}
+                        </span>
+                      </td>
+                      <td>
+                        <button
+                          className="btn btn-sm btn-outline-info me-2"
+                          onClick={() => handleView(supplier)}
+                        >
+                          <i className="fa-solid fa-eye"></i>
+                        </button>
+                        <button
+                          className="btn btn-sm btn-outline-primary me-2"
+                          onClick={() => handleEdit(supplier)}
+                        >
+                          <i className="fa-solid fa-pen"></i>
+                        </button>
+                        <button
+                          className="btn btn-sm btn-outline-danger"
+                          onClick={() => handleDelete(supplier.id)}
+                        >
+                          <i className="fa-solid fa-trash"></i>
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                  {suppliers.length === 0 && (
+                    <tr>
+                      <td colSpan="7" className="text-muted py-4">No suppliers found.</td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+      {/* View Supplier Modal */}
+      {showViewModal && selectedSupplier && (
+        <div className="modal show d-block" tabIndex="-1" style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}>
+          <div className="modal-dialog modal-lg modal-dialog-centered">
+            <div className="modal-content">
+              <div className="modal-header bg-light">
+                <h5 className="modal-title">Supplier Details</h5>
+                <button type="button" className="btn-close" onClick={() => setShowViewModal(false)}></button>
+              </div>
+              <div className="modal-body">
+                <div className="row">
+                  <div className="col-md-6 mb-3">
+                    <strong>Name:</strong> <span className="text-muted">{selectedSupplier.name}</span>
+                  </div>
+                  <div className="col-md-6 mb-3">
+                    <strong>Email:</strong> <span className="text-muted">{selectedSupplier.contactEmail}</span>
+                  </div>
+                  <div className="col-md-6 mb-3">
+                    <strong>Phone:</strong> <span className="text-muted">{selectedSupplier.contactPhone || '-'}</span>
+                  </div>
+                  <div className="col-md-6 mb-3">
+                    <strong>Category:</strong> <span className="text-muted">{selectedSupplier.category?.name || '-'}</span>
+                  </div>
+                  <div className="col-md-6 mb-3">
+                    <strong>Department:</strong> <span className="text-muted">{selectedSupplier.department?.name || '-'}</span>
+                  </div>
+                  <div className="col-md-6 mb-3">
+                    <strong>Status:</strong> <span className={`badge ${selectedSupplier.status === 'active' ? 'bg-success' : 'bg-danger'}`}>{selectedSupplier.status}</span>
+                  </div>
+                  <div className="col-md-12 mb-3">
+                    <strong>Address:</strong> <span className="text-muted">{selectedSupplier.address || '-'}</span>
+                  </div>
+                  <div className="col-md-6 mb-3">
+                    <strong>Per Unit Price:</strong> <span className="text-muted">{selectedSupplier.perUnitPrice || '-'}</span>
+                  </div>
+                  <div className="col-md-6 mb-3">
+                    <strong>Max Unit Purchase:</strong> <span className="text-muted">{selectedSupplier.maxUnitPurchase || '-'}</span>
+                  </div>
+                  <div className="col-md-6 mb-3">
+                    <strong>Discount Percent:</strong> <span className="text-muted">{selectedSupplier.discountPercent ? `${selectedSupplier.discountPercent}%` : '-'}</span>
+                  </div>
+                  <div className="col-md-6 mb-3">
+                    <strong>Delivery Terms:</strong> <span className="text-muted">{selectedSupplier.deliveryTerms || '-'}</span>
+                  </div>
+                  <div className="col-md-12 mb-3">
+                    <strong>Additional Benefits:</strong> <span className="text-muted">{selectedSupplier.additionalBenefits || '-'}</span>
+                  </div>
+                </div>
+              </div>
+              <div className="modal-footer">
+                <button type="button" className="btn btn-secondary" onClick={() => setShowViewModal(false)}>Close</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 };

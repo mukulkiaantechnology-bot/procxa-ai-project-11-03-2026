@@ -68,6 +68,7 @@ const endpoints = {
     addSupplier: "/procxa/add_supplier",
     getSuppliers: "/procxa/get_all_suppliers",
     updateSupplier: "/procxa/update_supplier",
+    deleteSupplier: "/procxa/delete_supplier",
     assignSupplier: "/procxa/assign_intake_request",
     deleteAssignSupplier: "/procxa/delete_assign_intake_request",
 

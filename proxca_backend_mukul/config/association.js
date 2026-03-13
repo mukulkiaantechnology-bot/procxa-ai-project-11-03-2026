@@ -147,6 +147,26 @@ module.exports = (db) => {
         as: "transactions",
     });
 
+    // ================supplier association=============
+
+    db.supplier.belongsTo(db.category, {
+        foreignKey: "categoryId",
+        as: "category",
+    });
+    db.category.hasMany(db.supplier, {
+        foreignKey: "categoryId",
+        as: "suppliers",
+    });
+
+    db.supplier.belongsTo(db.department, {
+        foreignKey: "departmentId",
+        as: "department",
+    });
+    db.department.hasMany(db.supplier, {
+        foreignKey: "departmentId",
+        as: "suppliers",
+    });
+
     //////////////////department asssociation////////////////
 
     db.department.belongsTo(db.user, {

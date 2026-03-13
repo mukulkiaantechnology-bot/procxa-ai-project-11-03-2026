@@ -1,5 +1,7 @@
 const db = require('../../../config/config');
 const Supplier = db.supplier;
+const Category = db.category;
+const Department = db.department;
 const Assign_intake_request = db.assign_intake_request;
 // Add a new supplier
 const add_supplier = async (req, res) => {
@@ -74,6 +76,11 @@ const get_all_suppliers = async (req, res) => {
         // Conditional pagination logic with userId filtering
         const queryOptions = {
             where: adminWhereClause,
+            include: [
+                { model: Category, as: 'category', attributes: ['id', 'name'] },
+                { model: Department, as: 'department', attributes: ['id', 'name'] }
+            ],
+            order: [['createdAt', 'DESC']],
             ...(page && limit ? { limit, offset } : {}),  // Apply pagination only if page & limit exist
         };
 
@@ -163,6 +170,18 @@ const delete_supplier = async (req, res) => {
         if (!isSuperAdmin && userId) {
           whereClause.userId = userId;
         }
+
+        // Delete related associations manually to prevent foreign key errors
+        await db.complementary_service.destroy({ where: { supplierId: id } });
+        await db.contract.destroy({ where: { supplierId: id } });
+        await db.transaction.destroy({ where: { supplierId: id } });
+        await db.volume_discount.destroy({ where: { recommendedSupplierId: id } });
+        await db.service_sow_consolidation.destroy({ where: { existingSupplierServiceId: id } });
+        await db.old_pricing.destroy({ where: { supplierId: id } });
+        await db.assign_intake_request.destroy({ where: { supplierId: id } });
+        await db.multi_year_contracting.destroy({ where: { supplierId: id } });
+        await db.price_comparison.destroy({ where: { recommendedSupplierId: id } });
+        await db.supplier_performance.destroy({ where: { supplierId: id } });
 
         const deletedSupplier = await Supplier.destroy({ where: whereClause });
 

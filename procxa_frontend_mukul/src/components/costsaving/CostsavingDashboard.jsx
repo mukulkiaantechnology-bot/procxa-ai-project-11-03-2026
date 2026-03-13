@@ -265,6 +265,7 @@ const CostsavingDashboard = () => {
               <div className="col-md-6 border-bottom pb-2"><strong>Reporting Year:</strong> {selectedSaving.reportingYear || "-"}</div>
               <div className="col-md-6 border-bottom pb-2"><strong>Currency:</strong> {selectedSaving.currency || "-"}</div>
               <div className="col-md-6 border-bottom pb-2"><strong>Benefit Start Month:</strong> {selectedSaving.benefitStartMonth || "-"}</div>
+              <div className="col-md-6 border-bottom pb-2"><strong>Benefit End Month:</strong> {selectedSaving.benefitEndMonth || "-"}</div>
               <div className="col-md-6 border-bottom pb-2"><strong>Current Price:</strong> {selectedSaving.currentPrice ? `$${selectedSaving.currentPrice}` : "-"}</div>
               <div className="col-md-6 border-bottom pb-2"><strong>Proposed Price:</strong> {selectedSaving.proposedPrice ? `$${selectedSaving.proposedPrice}` : "-"}</div>
               <div className="col-md-12 border-bottom pb-2"><strong>Notes:</strong> {selectedSaving.notesDescription || "-"}</div>

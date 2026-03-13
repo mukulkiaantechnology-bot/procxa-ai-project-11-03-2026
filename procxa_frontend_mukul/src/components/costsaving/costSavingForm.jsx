@@ -46,6 +46,7 @@ const CostSavingForm = () => {
     forecastVolumesMultiYear: generateYearData(),
     historicalUnitPrices: generateYearData(),
     additionalColumns: [],
+    sourcingBenefits: {}, // Added to match model
     intakeRequest: "",
   });
 
@@ -282,6 +283,7 @@ const CostSavingForm = () => {
         forecastVolumesMultiYear: generateYearData(),
         historicalUnitPrices: generateYearData(),
         additionalColumns: [],
+        sourcingBenefits: {},
         intakeRequest: "",
       });
     } catch (err) {

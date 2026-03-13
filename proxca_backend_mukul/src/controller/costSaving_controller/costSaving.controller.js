@@ -11,6 +11,7 @@ exports.createCostSaving = async (req, res) => {
       reportingYear,
       currency,
       benefitStartMonth,
+      benefitEndMonth,
       typeOfCostSaving,
       historicalUnitPrice,
       negotiatedUnitPrice,
@@ -25,9 +26,9 @@ exports.createCostSaving = async (req, res) => {
       sourcingBenefits,
       intakeRequest
     } = req.body;
-
+ 
     const userId = req.user.id; // Corrected: get from req.user set by authenticate middleware
-
+ 
     const newEntry = await CostSaving.create({
       supplierName,
       depreciationScheduleYears,
@@ -36,6 +37,7 @@ exports.createCostSaving = async (req, res) => {
       reportingYear,
       currency,
       benefitStartMonth,
+      benefitEndMonth,
       typeOfCostSaving,
       historicalUnitPrice,
       negotiatedUnitPrice,

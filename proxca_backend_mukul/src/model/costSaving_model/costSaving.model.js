@@ -36,6 +36,10 @@ module.exports = (sequelize, DataTypes) => {
             type: DataTypes.STRING,
             allowNull: false
         },
+        benefitEndMonth: {
+            type: DataTypes.STRING,
+            allowNull: true
+        },
         typeOfCostSaving: {
             type: DataTypes.STRING,
             allowNull: false
@@ -64,17 +68,17 @@ module.exports = (sequelize, DataTypes) => {
             type: DataTypes.TEXT,
             allowNull: true
         },
-
+ 
         // Forecasted Volumes (store as JSON)
         forecastVolumes: {
             type: DataTypes.JSON,
-            allowNull: false
+            allowNull: true
         },
-
+ 
         // Sourcing Benefits (store as JSON)
         sourcingBenefits: {
             type: DataTypes.JSON,
-            allowNull: false
+            allowNull: true
         },
         intakeRequest: {
             type: DataTypes.BIGINT,

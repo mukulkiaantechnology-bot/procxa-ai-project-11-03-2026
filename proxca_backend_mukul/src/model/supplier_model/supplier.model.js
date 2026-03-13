@@ -34,10 +34,7 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.BIGINT,
 
     },
-    subcategoryId: {
-      type: DataTypes.BIGINT,
 
-    },
     departmentId: {
       type: DataTypes.BIGINT,
     },

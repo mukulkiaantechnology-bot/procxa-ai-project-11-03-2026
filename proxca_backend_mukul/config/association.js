@@ -146,14 +146,6 @@ module.exports = (db) => {
         foreignKey: "categoryId",
         as: "transactions",
     });
-    db.transaction.belongsTo(db.subcategories, {
-        foreignKey: "categoryId",
-        as: "subcategory",
-    });
-    db.subcategories.hasMany(db.transaction, {
-        foreignKey: "subcategoryId",
-        as: "transactions",
-    });
 
     //////////////////department asssociation////////////////
 
@@ -221,14 +213,7 @@ module.exports = (db) => {
         foreignKey: "categoryId",
         as: "oldPricing",
     });
-    db.old_pricing.belongsTo(db.subcategories, {
-        foreignKey: "subcategoryId",
-        as: "subcategory",
-    });
-    db.subcategories.hasMany(db.old_pricing, {
-        foreignKey: "subcategoryId",
-        as: "oldPricing",
-    });
+
 
     // ================complementary_service association=============
 

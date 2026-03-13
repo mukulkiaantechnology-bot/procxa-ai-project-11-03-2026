@@ -130,10 +130,7 @@ const add_category = async (req, res) => {
 
 const get_categories = async (req, res) => {
   try {
-    const userId = req.user.id;
-    const categories = await category.findAll({
-      where: { userId }
-    });
+    const categories = await category.findAll();
 
     return res.status(200).json({
       message: "Categories retrieved successfully",

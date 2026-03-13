@@ -21,10 +21,7 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.BIGINT,
       allowNull: false,
     },
-    subcategoryId:{
-      type: DataTypes.BIGINT,
 
-    },
     amount: {
       type: DataTypes.FLOAT,
       allowNull: false,

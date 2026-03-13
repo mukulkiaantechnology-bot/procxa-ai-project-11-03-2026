@@ -1,7 +1,6 @@
 const db = require('../../../config/config');
 const Transaction = db.transaction;
 const Category = db.category;
-const Subcategory = db.subcategories;
 const Supplier = db.supplier;
 
 const get_all_volume_discounts = async (req, res) => {
@@ -23,7 +22,6 @@ const get_all_volume_discounts = async (req, res) => {
     // 🔐 ADMIN ISOLATION
     const transactionWhere = {
       categoryId: { [db.Sequelize.Op.ne]: null },
-      subcategoryId: { [db.Sequelize.Op.ne]: null },
     };
 
     if (userType === 'admin') {
@@ -34,7 +32,6 @@ const get_all_volume_discounts = async (req, res) => {
       where: transactionWhere,
       include: [
         { model: Category, as: 'category', attributes: ['name'] },
-        { model: Subcategory, as: 'subcategory', attributes: ['name'] },
       ],
     });
 
@@ -50,13 +47,11 @@ const get_all_volume_discounts = async (req, res) => {
     const aggregatedMap = {};
 
     for (const tx of transactions) {
-      const key = `${tx.categoryId}_${tx.subcategoryId}`;
+      const key = `${tx.categoryId}`;
 
       if (!aggregatedMap[key]) {
         aggregatedMap[key] = {
           categoryId: tx.categoryId,
-          subcategoryId: tx.subcategoryId,
-          subcategoryName: tx.subcategory?.name || 'N/A',
           totalUnits: 0,
         };
       }
@@ -71,7 +66,6 @@ const get_all_volume_discounts = async (req, res) => {
       paginatedData.map(async (item) => {
         const supplierWhere = {
           categoryId: item.categoryId,
-          subcategoryId: item.subcategoryId,
         };
 
         if (userType === 'admin') {

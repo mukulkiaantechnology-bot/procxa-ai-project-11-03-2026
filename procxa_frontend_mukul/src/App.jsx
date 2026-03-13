@@ -48,7 +48,7 @@ import CategoryEditPage from "./components/intakemnagement/addcate/CategoryEditP
 import CostOther from "./components/costsaving/CostOther";
 import EditPage from "./components/contractmanage/EditPage";
 
-import Subcategory from "./components/intakemnagement/addcate/SubCategory";
+
 import AddSupplier from "./components/Add Category/AddSupplier";
 import SupplierPerformance from "./components/Add Category/AddFeedBack";
 import DepartmentList from "./components/Add Category/Sub Category/DepartmentList";
@@ -234,7 +234,7 @@ function App() {
 
               <Route path="/addtransaction" element={<AddTransaction />} />
               {/* add category sub category  */}
-              <Route path="/add-subcategory" element={<Subcategory />} />
+
 
               <Route path="/addSupplier" element={<AddSupplier />} />
               <Route path="/flowPrompt" element={<CreateApprovalPrompt />} />

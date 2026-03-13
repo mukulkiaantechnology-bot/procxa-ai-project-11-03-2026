@@ -959,9 +959,7 @@ function CategoryEditPage() {
     });
   };
 
-  const handleAddSubcategory = () => {
-    navigate("/add-subcategory");
-  };
+
 
   const categoryOptions = categories.map((category) => ({
     value: category.id,
@@ -1014,13 +1012,7 @@ function CategoryEditPage() {
     <div className="container mt-4 mb-5">
       <div className="d-flex justify-content-between align-items-center mb-4">
         <h3 className="fw-bold">Category Management</h3>
-        <button
-          className="btn"
-          style={{ backgroundColor: "#007bff", color: "white" }}
-          onClick={handleAddSubcategory}
-        >
-          <i className="fa-solid fa-plus me-2"></i>Add Subcategory
-        </button>
+
       </div>
 
       {feedbackMessage.message && (

@@ -79,7 +79,7 @@ db.complementary_service = require("../src/model/complementary_service_model/com
 db.price_comparison = require("../src/model/price_comparison_model/price_comparison.model")(sequelize, DataTypes)
 db.multi_year_contracting = require("../src/model/multi_year_contracting_model/multi_year_contracting_model")(sequelize, DataTypes)
 db.category = require("../src/model/category_model/category.model")(sequelize, DataTypes)
-db.subcategories = require("../src/model/category_model/subcategory.model")(sequelize, DataTypes)
+
 db.assign_intake_request = require("../src/model/assign_supplier_model/assign_supplier.model")(sequelize, DataTypes)
 db.supplier_rating = require("../src/model/supplier_model/supplier_rating.model")(sequelize, DataTypes)
 db.costSaving = require("../src/model/costSaving_model/costSaving.model")(sequelize, DataTypes)

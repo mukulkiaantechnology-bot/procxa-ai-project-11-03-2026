@@ -12,7 +12,7 @@ const EditIntakeRequest = () => {
 
   const [message, setMessage] = useState({ type: "", text: "" });
   const [categories, setCategories] = useState([]);
-  const [subcategories, setSubCategories] = useState([]);
+
   const [departments, setDepartments] = useState([]);
   const [suppliers, setSuppliers] = useState([]);
   const [startDateFocus, setStartDateFocus] = useState(false);
@@ -29,7 +29,7 @@ const EditIntakeRequest = () => {
     try {
       const [categoryResponse, subCategoryResponse, departmentsResponse, supplierResponse, intakeResponse, templatesResponse] = await Promise.all([
         get(endpoints.getCategory).catch(() => null),
-        get(endpoints.getSubCategory).catch(() => null),
+
         get(endpoints.getAllDepartments).catch(() => null),
         get(endpoints.getSuppliers).catch(() => null),
         get(`${endpoints.getIntakeRequestById}/${id}`).catch(() => null),
@@ -37,7 +37,7 @@ const EditIntakeRequest = () => {
       ]);
 
       if (categoryResponse?.categories) setCategories(categoryResponse.categories);
-      if (subCategoryResponse?.subcategories) setSubCategories(subCategoryResponse.subcategories);
+
       if (departmentsResponse?.data) setDepartments(departmentsResponse.data);
       if (supplierResponse?.data) setSuppliers(supplierResponse.data);
       if (templatesResponse?.templates) setContractTemplates(templatesResponse.templates);
@@ -127,16 +127,7 @@ const EditIntakeRequest = () => {
     value: category.id,
     label: category.name,
   }));
-  const subcategoryOptions = subcategories
-    .filter(
-      (subcat) =>
-        !formData.categoryId ||
-        Number(subcat.categoryId) === Number(formData.categoryId)
-    )
-    .map((subcategory) => ({
-      value: String(subcategory.id),
-      label: subcategory.name,
-    }));
+
 
   return (
     <div className="container mt-5">
@@ -247,35 +238,7 @@ const EditIntakeRequest = () => {
             />
           </div>
 
-          {/* Subcategory */}
-          <div className="col-md-4 mb-3">
-            <CreatableSelect
-              options={subcategoryOptions}
-              value={
-                subcategoryOptions.find(option => option.value === String(formData.subcategory)) ||
-                (formData.subcategory ? { label: formData.subcategory, value: formData.subcategory } : null)
-              }
-              onChange={(selectedOption) =>
-                setFormData({
-                  ...formData,
-                  subcategory: selectedOption ? selectedOption.value : ""
-                })
-              }
-              placeholder="Type or select subcategory"
-              isClearable
-              styles={{
-                control: (base) => ({
-                  ...base,
-                  padding: "6px 4px",
-                  minHeight: '60px',
-                  fontSize: "16px",
-                  borderRadius: "0.375rem",
-                  borderColor: "#ced4da",
-                  cursor: "pointer",
-                }),
-              }}
-            />
-          </div>
+
 
           {/* Engagement Type */}
           <div className="col-md-4 mb-3">

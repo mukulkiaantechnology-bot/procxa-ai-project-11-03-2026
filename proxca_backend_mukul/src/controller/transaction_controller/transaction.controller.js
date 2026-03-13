@@ -5,10 +5,10 @@ const Transaction = db.transaction;
 const add_transaction = async (req, res) => {
     const userId = req.user.id;
     try {
-        const { dateOfTransaction, supplierId, departmentId, categoryId, amount, year, quarter,unit,subcategoryId } = req.body;
+        const { dateOfTransaction, supplierId, departmentId, categoryId, amount, year, quarter,unit } = req.body;
 
         // Check if required fields are empty
-        const requiredFields = ['dateOfTransaction', 'supplierId', 'departmentId', 'categoryId', 'amount', 'year', 'quarter','subcategoryId'];
+        const requiredFields = ['dateOfTransaction', 'supplierId', 'departmentId', 'categoryId', 'amount', 'year', 'quarter'];
         const isEmptyKey = requiredFields.some(field => {
             const value = req.body[field];
             return value === null || value === undefined || value === '';
@@ -31,7 +31,6 @@ const add_transaction = async (req, res) => {
             year,
             quarter,
             unit,
-            subcategoryId,
             userId
         });
 

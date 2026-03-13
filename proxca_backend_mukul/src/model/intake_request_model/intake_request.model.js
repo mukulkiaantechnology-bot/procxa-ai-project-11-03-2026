@@ -13,9 +13,7 @@ module.exports = (sequelize, DataTypes) => {
     categoryId: {
       type: DataTypes.BIGINT,
     },
-    subcategory: {
-      type: DataTypes.STRING,
-    },
+
     engagementType: {
       type: DataTypes.STRING,
     },

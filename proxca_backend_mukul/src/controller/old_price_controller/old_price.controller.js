@@ -1,11 +1,10 @@
 const db = require('../../../config/config');
 const OldPricing = db.old_pricing;
 const supplier  = db.supplier;
-const subcategories = db.subcategories;
 // Add a new old pricing record
 const add_old_pricing = async (req, res) => {
     try {
-        const { supplierId, categoryId, subcategoryId, oldPrice, currentQuotation, savingFromOldPricing, status ,productPurchased } = req.body;
+        const { supplierId, categoryId, oldPrice, currentQuotation, savingFromOldPricing, status ,productPurchased } = req.body;
         const { id: userId, userType } = req.user;
 
         // 🔐 ROLE GUARD - Only admin and superadmin can access
@@ -17,7 +16,7 @@ const add_old_pricing = async (req, res) => {
         }
 
         // Check if required fields are empty
-        const requiredFields = ['supplierId', 'categoryId', 'oldPrice', 'currentQuotation', 'subcategoryId'];
+        const requiredFields = ['supplierId', 'categoryId', 'oldPrice', 'currentQuotation'];
         const isEmptyKey = requiredFields.some(field => {
             const value = req.body[field];
             return value === null || value === undefined;
@@ -36,8 +35,7 @@ const add_old_pricing = async (req, res) => {
         // Create the new old pricing record
         const newOldPricing = await OldPricing.create({
             supplierId,
-            categoryId,
-            subcategoryId, 
+            categoryId, 
             oldPrice,
             currentQuotation,
             productPurchased,
@@ -90,12 +88,7 @@ const get_all_old_pricing = async (req, res) => {
                     model: supplier,
                     as: "supplier",
                     attributes: ["id", "name"], 
-                },
-                {
-                    model: subcategories,
-                    as: "subcategory",
-                    attributes: ["id", "name"], 
-                },
+                }
             ],
         });
 
@@ -166,12 +159,7 @@ const get_old_pricing_by_id = async (req, res) => {
                     model: supplier,
                     as: "supplier",
                     attributes: ["id", "name"], 
-                },
-                {
-                    model: subcategories,
-                    as: "subcategory",
-                    attributes: ["id", "name"], 
-                },
+                }
             ],
         });
 

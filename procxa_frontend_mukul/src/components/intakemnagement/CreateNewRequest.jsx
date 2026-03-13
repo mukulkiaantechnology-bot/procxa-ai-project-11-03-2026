@@ -859,7 +859,7 @@ const CreateNewRequest = () => {
   const { get, post } = useApi();
   const [message, setMessage] = useState({ type: "", text: "" });
   const [categories, setCategories] = useState([]);
-  const [subcategories, setSubCategories] = useState([]);
+
   const [departments, setDepartments] = useState([]);
   const [suppliers, setSuppliers] = useState([]);
   const [startDateFocus, setStartDateFocus] = useState(false);
@@ -871,7 +871,7 @@ const CreateNewRequest = () => {
   const [formData, setFormData] = useState({
     requestType: "",
     category: "",
-    subcategory: "",
+
     engagementType: "",
     itemDescription: "",
     quantity: "",
@@ -951,10 +951,7 @@ const CreateNewRequest = () => {
         return null;
       });
 
-      const subCategoryResponse = await get(endpoints.getSubCategory).catch((error) => {
-        console.error("Failed to fetch subcategories:", error);
-        return null;
-      });
+
 
       const departmentsResponse = await get(endpoints.getAllDepartments).catch((error) => {
         console.error("Failed to fetch departments:", error);
@@ -972,12 +969,7 @@ const CreateNewRequest = () => {
         console.error(categoryResponse?.message || "No categories found.");
       }
 
-      // Handling subcategories
-      if (subCategoryResponse && subCategoryResponse?.subcategories?.length > 0) {
-        setSubCategories(subCategoryResponse.subcategories);
-      } else {
-        console.error(subCategoryResponse?.message || "No subcategories found.");
-      }
+
 
       // Handling departments
       if (departmentsResponse && departmentsResponse?.data?.length > 0) {
@@ -1050,16 +1042,7 @@ const CreateNewRequest = () => {
     value: Number(category.id),
     label: category.name,
   }));
-  const subcategoryOptions = subcategories
-    .filter(
-      (subcat) =>
-        !formData.category ||
-        Number(subcat.categoryId) === Number(formData.category)
-    )
-    .map((subcategory) => ({
-      value: subcategory.id,
-      label: subcategory.name,
-    }));
+
 
 
   return (
@@ -1174,28 +1157,11 @@ const CreateNewRequest = () => {
               onChange={async (selectedOption) => {
                 const categoryId = selectedOption ? selectedOption.value : "";
 
-                // 1️⃣ category set karo, subcategory reset
+                // category set karo
                 setFormData((prev) => ({
                   ...prev,
                   category: categoryId,
-                  subcategory: "",
                 }));
-
-                // 2️⃣ agar category select hui hai → subcategory lao
-                if (categoryId) {
-                  try {
-                    const res = await get(
-                      `${endpoints.getSubCategory}?categoryId=${categoryId}`
-                    );
-
-                    setSubCategories(res?.subcategories || []);
-                  } catch (error) {
-                    console.error("Failed to fetch subcategories:", error);
-                    setSubCategories([]);
-                  }
-                } else {
-                  setSubCategories([]);
-                }
 
                 if (errors.category) {
                   setErrors((prev) => ({ ...prev, category: "" }));
@@ -1218,32 +1184,7 @@ const CreateNewRequest = () => {
             />
           </div>
 
-          <div className="col-md-4 mb-3">
-            {/* <label className="form-label fw-semibold">Subcategory</label> */}
-            <CreatableSelect
-              options={subcategoryOptions}
-              value={subcategoryOptions.find(option => option.value === formData.subcategory) || null}
-              onChange={(selectedOption) =>
-                setFormData({ ...formData, subcategory: selectedOption ? selectedOption.value : "" })
-              }
-              placeholder="Type or select subcategory"
-              isClearable
-              isSearchable
-              isDisabled={!formData.category}
-              styles={{
-                control: (base) => ({
-                  ...base,
-                  padding: "6px 4px",
-                  minHeight: '60px',
-                  fontSize: "16px",
-                  borderRadius: "0.375rem",
-                  borderColor: "#ced4da",
-                  cursor: "pointer",
-                }),
-              }}
 
-            />
-          </div>
 
 
 

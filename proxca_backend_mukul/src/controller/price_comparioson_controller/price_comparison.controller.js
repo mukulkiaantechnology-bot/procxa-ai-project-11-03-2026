@@ -51,7 +51,7 @@ const Supplier = db.supplier;
 
 const add_price_comparison = async (req, res) => {
     try {
-        const { supplier1, supplier2, subcategoryId } = req.body;
+        const { supplier1, supplier2 } = req.body;
         const { id: userId, userType } = req.user;
 
         // 🔐 ROLE GUARD - Only admin and superadmin can access
@@ -62,11 +62,10 @@ const add_price_comparison = async (req, res) => {
             });
         }
 
-        // Ensure both supplier IDs and product are provided
-        if (!supplier1 || !supplier2 || !subcategoryId) {
+        if (!supplier1 || !supplier2) {
             return res.status(400).json({
                 status: false,
-                message: "Please provide both supplier IDs and product service.",
+                message: "Please provide both supplier IDs.",
             });
         }
 
@@ -114,7 +113,6 @@ const add_price_comparison = async (req, res) => {
         const newPriceComparison = await PriceComparison.create({
             supplier1,
             supplier2,
-            subcategoryId,
             recommendedSupplierId,
             recommendedSupplierName, // Store recommended supplier name
             notRecommendedSupplierName, // Store not recommended supplier name

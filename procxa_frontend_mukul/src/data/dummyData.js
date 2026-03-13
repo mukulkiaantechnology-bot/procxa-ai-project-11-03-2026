@@ -34,15 +34,7 @@ export const categories = [
   { id: 5, name: "Facilities", description: "Facilities Management" }
 ];
 
-export const subCategories = [
-  { id: 1, categoryId: 1, name: "Software Licenses", description: "Software licensing agreements" },
-  { id: 2, categoryId: 1, name: "Hardware", description: "IT Hardware and equipment" },
-  { id: 3, categoryId: 1, name: "Cloud Services", description: "Cloud infrastructure and services" },
-  { id: 4, categoryId: 2, name: "Consulting", description: "Professional consulting services" },
-  { id: 5, categoryId: 2, name: "Support Services", description: "Ongoing support and maintenance" },
-  { id: 6, categoryId: 3, name: "Office Supplies", description: "General office supplies" },
-  { id: 7, categoryId: 4, name: "Digital Marketing", description: "Digital marketing services" }
-];
+
 
 // ============================
 // INTAKE REQUESTS
@@ -203,8 +195,7 @@ export const renewalRequests = generateRenewalRequests();
 
 export const volumeDiscounts = [
   { 
-    id: 1, 
-    subcategoryName: "Software Licenses",
+    id: 1,
     totalUnits: 500,
     bestSupplier: {
       supplierId: 1,
@@ -216,8 +207,7 @@ export const volumeDiscounts = [
     }
   },
   { 
-    id: 2, 
-    subcategoryName: "Hardware",
+    id: 2,
     totalUnits: 300,
     bestSupplier: {
       supplierId: 2,
@@ -229,8 +219,7 @@ export const volumeDiscounts = [
     }
   },
   { 
-    id: 3, 
-    subcategoryName: "Cloud Services",
+    id: 3,
     totalUnits: 250,
     bestSupplier: {
       supplierId: 3,

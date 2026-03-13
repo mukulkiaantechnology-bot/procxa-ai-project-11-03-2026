@@ -10,10 +10,7 @@ module.exports = (sequelize, DataTypes) => {
             type: DataTypes.BIGINT,
             allowNull: false,
         },
-        subcategoryId: {
-            type: DataTypes.BIGINT,
-            allowNull: false,
-        },
+
         supplier2: {
             type: DataTypes.BIGINT,
             allowNull: false,

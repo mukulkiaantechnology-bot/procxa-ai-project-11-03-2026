@@ -13,9 +13,7 @@ module.exports = (sequelize, DataTypes) => {
             type: DataTypes.BIGINT,
             allowNull: false,
         },
-        subcategoryId:{
-            type: DataTypes.BIGINT,
-        },
+
         oldPrice: {
             type: DataTypes.DECIMAL(10, 2),
             allowNull: false,

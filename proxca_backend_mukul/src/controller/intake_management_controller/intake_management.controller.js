@@ -8,7 +8,6 @@ const intake_request_comment = db.intake_request_comment;
 const intake_request_approvers = db.intake_request_approvers;
 const procurement_request_approvers = db.procurement_request_approvers;
 const Category = db.category;
-const Subcategory = db.subcategories;
 const User = db.user;
 
 const add_intake_request = async (req, res) => {
@@ -20,7 +19,6 @@ const add_intake_request = async (req, res) => {
     let {
       requestType,
       category,
-      subcategory,
       engagementType,
       itemDescription,
       quantity,
@@ -77,14 +75,6 @@ const add_intake_request = async (req, res) => {
       category = newCategory.id;
     }
 
-    // ✅ Step 3: Handle Subcategory
-    if (subcategory && isNaN(subcategory)) {
-      const newSubcategory = await Subcategory.create({
-        name: subcategory,
-        categoryId: category,
-      });
-      subcategory = newSubcategory.id;
-    }
 
     // ✅ Step 4: Handle supplier (find or create only if all details exist)
     let supplier = null;
@@ -117,7 +107,6 @@ const add_intake_request = async (req, res) => {
     const newIntakeRequest = await intakeRequest.create({
       requestType,
       categoryId: category,
-      subcategory,
       engagementType,
       itemDescription,
       quantity: quantity || null,

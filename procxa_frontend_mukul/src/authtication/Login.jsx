@@ -243,7 +243,7 @@ const Login = () => {
                   type="button"
                   className="btn btn-sm border flex-fill"
                   style={{ color: "#578e7e", borderColor: "#578e7e" }}
-                  onClick={() => setLoginData({ email: "hr@procxa.com", password: "Password123" })}
+                  onClick={() => setLoginData({ email: "contractdepartment@gmail.com", password: "123456" })}
                 >
                   Dept Login
                 </button>

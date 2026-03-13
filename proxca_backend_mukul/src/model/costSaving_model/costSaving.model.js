@@ -42,15 +42,27 @@ module.exports = (sequelize, DataTypes) => {
         },
         historicalUnitPrice: {
             type: DataTypes.STRING,
-            allowNull: false
+            allowNull: true
         },
         negotiatedUnitPrice: {
             type: DataTypes.STRING,
-            allowNull: false
+            allowNull: true
         },
         reductionPerUnit: {
             type: DataTypes.STRING,
-            allowNull: false
+            allowNull: true
+        },
+        currentPrice: {
+            type: DataTypes.STRING,
+            allowNull: true
+        },
+        proposedPrice: {
+            type: DataTypes.STRING,
+            allowNull: true
+        },
+        notesDescription: {
+            type: DataTypes.TEXT,
+            allowNull: true
         },
 
         // Forecasted Volumes (store as JSON)

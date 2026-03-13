@@ -1,6 +1,18 @@
 
 const express = require("express");
-const { createCostSaving } = require("../../controller/costSaving_controller/costSaving.controller");
+const { 
+  createCostSaving, 
+  getAllCostSavings, 
+  getCostSavingById, 
+  updateCostSaving, 
+  deleteCostSaving 
+} = require("../../controller/costSaving_controller/costSaving.controller");
 const router = express.Router();
-router.post("/createCostSaving" , createCostSaving)
+
+router.post("/createCostSaving", createCostSaving);
+router.get("/getAllCostSavings", getAllCostSavings);
+router.get("/getCostSavingById/:id", getCostSavingById);
+router.patch("/updateCostSaving/:id", updateCostSaving);
+router.delete("/deleteCostSaving/:id", deleteCostSaving);
+
 module.exports = router;

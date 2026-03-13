@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 import endpoints from "../../api/endPoints";
 import useApi from "../../hooks/useApi";
 
@@ -25,7 +26,12 @@ const generateYearData = () => {
 };
 
 const CostSavingForm = () => {
-  const { post, get } = useApi();
+  const { post, get, patch } = useApi();
+  const navigate = useNavigate();
+  const location = useLocation();
+  const searchParams = new URLSearchParams(location.search);
+  const editId = searchParams.get("editId");
+
   const [intakeRequests, setIntakeRequests] = useState([]);
   const [suppliers, setSuppliers] = useState([]);
   const [categories, setCategories] = useState([]);
@@ -213,11 +219,19 @@ const CostSavingForm = () => {
         sourcingBenefits: rows,
       };
 
-      const response = await post(endpoints.createCostSaving, payload);
+      let response;
+      if (editId) {
+        response = await patch(`${endpoints.updateCostSaving}/${editId}`, payload);
+      } else {
+        response = await post(endpoints.createCostSaving, payload);
+      }
 
-      if (!response.status) throw new Error(response.message || "Submission failed.");
+      if (!response.status && !response.data) throw new Error(response.message || "Submission failed.");
 
       alert(response.message || "Form submitted successfully!");
+      navigate("/costsaving");
+      
+      // Reset is optional if we are navigating away, but keeping it to avoid any issue
       setFormData({
         supplierName: "",
         depreciationScheduleYears: "",
@@ -239,6 +253,7 @@ const CostSavingForm = () => {
         additionalColumns: [],
         intakeRequest: "",
       });
+      setRows([{ ...initialRow }]);
     } catch (err) {
       alert("Error submitting form.");
       console.error(err);
@@ -288,12 +303,78 @@ const CostSavingForm = () => {
     fetchSuppliers();
   }, []);
 
+  useEffect(() => {
+    if (editId) {
+      const fetchEditData = async () => {
+        try {
+          const res = await get(`${endpoints.getCostSavingById}/${editId}`);
+          if (res) {
+             const data = res.data || res;
+
+             // Ensure JSON fields are parsed correctly to avoid "map is not a function" errors
+             let parsedForecastVolumes = data.forecastVolumes;
+             if (typeof parsedForecastVolumes === "string") {
+               try { parsedForecastVolumes = JSON.parse(parsedForecastVolumes); } catch(e) {}
+             }
+             let parsedForecastMultiYear = data.forecastVolumesMultiYear;
+             if (typeof parsedForecastMultiYear === "string") {
+               try { parsedForecastMultiYear = JSON.parse(parsedForecastMultiYear); } catch(e) {}
+             }
+             let parsedHistoricalPrices = data.historicalUnitPrices;
+             if (typeof parsedHistoricalPrices === "string") {
+               try { parsedHistoricalPrices = JSON.parse(parsedHistoricalPrices); } catch(e) {}
+             }
+             let parsedAdditionalColumns = data.additionalColumns;
+             if (typeof parsedAdditionalColumns === "string") {
+               try { parsedAdditionalColumns = JSON.parse(parsedAdditionalColumns); } catch(e) {}
+             }
+             let parsedSourcingBenefits = data.sourcingBenefits;
+             if (typeof parsedSourcingBenefits === "string") {
+               try { parsedSourcingBenefits = JSON.parse(parsedSourcingBenefits); } catch(e) {}
+             }
+
+             setFormData({
+               ...formData,
+               supplierName: data.supplierName || "",
+               depreciationScheduleYears: data.depreciationScheduleYears || "",
+               group: data.group || "",
+               category: data.category || "",
+               reportingYear: data.reportingYear || "",
+               currency: data.currency || "USD",
+               benefitStartMonth: data.benefitStartMonth || "",
+               typeOfCostSaving: data.typeOfCostSaving || "",
+               historicalUnitPrice: data.historicalUnitPrice || "",
+               negotiatedUnitPrice: data.negotiatedUnitPrice || "",
+               reductionPerUnit: data.reductionPerUnit || "",
+               currentPrice: data.currentPrice || "",
+               proposedPrice: data.proposedPrice || "",
+               notesDescription: data.notesDescription || "",
+               forecastVolumes: parsedForecastVolumes || generateYearData(),
+               forecastVolumesMultiYear: parsedForecastMultiYear || generateYearData(),
+               historicalUnitPrices: parsedHistoricalPrices || generateYearData(),
+               additionalColumns: Array.isArray(parsedAdditionalColumns) ? parsedAdditionalColumns : [],
+               intakeRequest: data.intakeRequest || ""
+             });
+             if (parsedSourcingBenefits && Array.isArray(parsedSourcingBenefits) && parsedSourcingBenefits.length > 0) {
+               setRows(parsedSourcingBenefits);
+             } else if (parsedSourcingBenefits && typeof parsedSourcingBenefits === 'object') {
+               setRows([parsedSourcingBenefits]);
+             }
+          }
+        } catch (error) {
+          console.error("Error fetching cost saving details:", error);
+        }
+      };
+      fetchEditData();
+    }
+  }, [editId]);
+
   const staticColumns = ["Baseline", "New Cost", "Annualized Benefits"];
   const itemColumns = ["item1", "item2", "item3", ...formData.additionalColumns];
 
   return (
     <div className="container-fluid mt-4 px-2 px-md-4">
-      <h2 className="text-center text-md-start">Add Cost Saving</h2>
+      <h2 className="text-center text-md-start">{editId ? "Update" : "Add"} Cost Saving</h2>
       <form onSubmit={handleSubmit}>
         <div className="row">
 
@@ -966,13 +1047,13 @@ const CostSavingForm = () => {
         </div>
 
         {/* Submit Button */}
-        <div className="d-flex justify-content-center mt-5 mb-4">
+        <div className="d-flex justify-content-end mb-4">
           <button
             type="submit"
-            className="btn px-5 py-2"
-            style={{ backgroundColor: "#578E7E", border: "none", color: "white" }}
+            className="btn px-4 py-2 text-white fw-bold shadow-sm rounded-pill"
+            style={{ backgroundColor: "#578E7E" }}
           >
-            Submit
+            {editId ? "Update" : "Submit"}
           </button>
         </div>
       </form>

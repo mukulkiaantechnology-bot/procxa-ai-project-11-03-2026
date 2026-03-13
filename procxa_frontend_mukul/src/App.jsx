@@ -58,6 +58,7 @@ import TrainAi from "./layout/TrainAi";
 import UploadAgreement from "./components/contracttemplate/uploadAgreement";
 import EditIntakeRequest from "./components/intakemnagement/editRequest";
 import CostSavingForm from "./components/costsaving/costSavingForm";
+import CostsavingDashboard from "./components/costsaving/CostsavingDashboard";
 import CreateApprovalPrompt from "./components/approvalworkflo/CreateFlow";
 import CreateApprovalFlow from "./components/approvalworkflo/AddContractFlow";
 import AdminLicenseDashboard from "./components/license/AdminLicenseDashboard";
@@ -161,7 +162,8 @@ function App() {
               {/* contracttemplate */}
 
               {/* const saving */}
-              <Route path="/costsaving" element={<CostSavingForm />} />
+              <Route path="/costsaving" element={<CostsavingDashboard />} />
+              <Route path="/costsavingform" element={<CostSavingForm />} />
               <Route path="/volumedisc" element={<ValuDiscount />} />
               <Route path="/suppliercons" element={<SupplierConsolidation />} />
               <Route path="/supplieredit" element={<SupplierEditPage />} />

@@ -132,6 +132,10 @@ const endpoints = {
 
     // 💸 Cost Saving
     createCostSaving: "/procxa/createCostSaving",
+    getAllCostSavings: "/procxa/getAllCostSavings",
+    getCostSavingById: "/procxa/getCostSavingById",
+    updateCostSaving: "/procxa/updateCostSaving",
+    deleteCostSaving: "/procxa/deleteCostSaving",
     getAllNotPendingIntakeRequests:
         "/procxa/get_all_not_pending_intake_requests",
     get_intake_request_details:

@@ -15,6 +15,9 @@ exports.createCostSaving = async (req, res) => {
       historicalUnitPrice,
       negotiatedUnitPrice,
       reductionPerUnit,
+      currentPrice,
+      proposedPrice,
+      notesDescription,
       forecastVolumes,
       sourcingBenefits,
       intakeRequest
@@ -32,6 +35,9 @@ exports.createCostSaving = async (req, res) => {
       historicalUnitPrice,
       negotiatedUnitPrice,
       reductionPerUnit,
+      currentPrice,
+      proposedPrice,
+      notesDescription,
       forecastVolumes,
       sourcingBenefits,
       intakeRequest

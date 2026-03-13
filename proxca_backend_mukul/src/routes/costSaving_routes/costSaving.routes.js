@@ -7,7 +7,10 @@ const {
   updateCostSaving, 
   deleteCostSaving 
 } = require("../../controller/costSaving_controller/costSaving.controller");
+const authenticate = require("../../middleware/authorize");
 const router = express.Router();
+
+router.use(authenticate);
 
 router.post("/createCostSaving", createCostSaving);
 router.get("/getAllCostSavings", getAllCostSavings);

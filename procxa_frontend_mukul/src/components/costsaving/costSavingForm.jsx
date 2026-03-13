@@ -374,7 +374,26 @@ const CostSavingForm = () => {
 
   return (
     <div className="container-fluid mt-4 px-2 px-md-4">
-      <h2 className="text-center text-md-start">{editId ? "Update" : "Add"} Cost Saving</h2>
+      <div className="d-flex justify-content-between align-items-center mb-4 flex-wrap">
+        <h2 className="mb-0 text-md-start" style={{ color: "#578E7E", fontWeight: "600" }}>
+          {editId ? "Update" : "Add"} Cost Saving
+        </h2>
+        <button 
+          onClick={() => navigate("/costsaving")} 
+          className="btn text-white d-flex align-items-center gap-2"
+          style={{ 
+            backgroundColor: "#578E7E",
+            padding: "10px 20px",
+            borderRadius: "5px",
+            border: "none",
+            transition: "all 0.3s ease"
+          }}
+          onMouseOver={(e) => e.target.style.opacity = '0.9'}
+          onMouseOut={(e) => e.target.style.opacity = '1'}
+        >
+          <i className="fa-solid fa-arrow-left"></i> Back
+        </button>
+      </div>
       <form onSubmit={handleSubmit}>
         <div className="row">
 
@@ -1047,11 +1066,18 @@ const CostSavingForm = () => {
         </div>
 
         {/* Submit Button */}
-        <div className="d-flex justify-content-end mb-4">
+        <div className="d-flex justify-content-center mb-5 mt-4">
           <button
             type="submit"
-            className="btn px-4 py-2 text-white fw-bold shadow-sm rounded-pill"
-            style={{ backgroundColor: "#578E7E" }}
+            className="btn px-5 py-3 text-white fw-bold shadow-lg rounded-pill"
+            style={{ 
+              backgroundColor: "#578E7E", 
+              fontSize: "1.1rem",
+              transition: "all 0.3s ease",
+              border: "none"
+            }}
+            onMouseOver={(e) => e.target.style.transform = 'scale(1.05)'}
+            onMouseOut={(e) => e.target.style.transform = 'scale(1)'}
           >
             {editId ? "Update" : "Submit"}
           </button>

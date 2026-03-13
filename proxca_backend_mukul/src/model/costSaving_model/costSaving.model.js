@@ -79,6 +79,22 @@ module.exports = (sequelize, DataTypes) => {
         intakeRequest: {
             type: DataTypes.BIGINT,
 
+        },
+        userId: {
+            type: DataTypes.BIGINT,
+            allowNull: true
+        },
+        historicalUnitPrices: {
+            type: DataTypes.JSON,
+            allowNull: true
+        },
+        forecastVolumesMultiYear: {
+            type: DataTypes.JSON,
+            allowNull: true
+        },
+        additionalColumns: {
+            type: DataTypes.JSON,
+            allowNull: true
         }
     });
 

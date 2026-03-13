@@ -19,9 +19,14 @@ exports.createCostSaving = async (req, res) => {
       proposedPrice,
       notesDescription,
       forecastVolumes,
+      forecastVolumesMultiYear,
+      historicalUnitPrices,
+      additionalColumns,
       sourcingBenefits,
       intakeRequest
     } = req.body;
+
+    const userId = req.user.id; // Corrected: get from req.user set by authenticate middleware
 
     const newEntry = await CostSaving.create({
       supplierName,
@@ -39,8 +44,12 @@ exports.createCostSaving = async (req, res) => {
       proposedPrice,
       notesDescription,
       forecastVolumes,
+      forecastVolumesMultiYear,
+      historicalUnitPrices,
+      additionalColumns,
       sourcingBenefits,
-      intakeRequest
+      intakeRequest,
+      userId
     });
 
     return res.status(201).json({ message: 'Cost Saving created successfully', data: newEntry ,status:true});
@@ -53,7 +62,14 @@ exports.createCostSaving = async (req, res) => {
 // Get all cost saving entries
 exports.getAllCostSavings = async (req, res) => {
   try {
-    const entries = await CostSaving.findAll();
+    const { userType, id: userId } = req.user; // Corrected: get from req.user set by authenticate middleware
+    let query = {};
+
+    if (userType === 'admin') {
+      query.where = { userId: userId };
+    }
+
+    const entries = await CostSaving.findAll(query);
     return res.status(200).json(entries);
   } catch (error) {
     console.error('Fetch All Error:', error);

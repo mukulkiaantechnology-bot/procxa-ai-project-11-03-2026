@@ -58,6 +58,9 @@ const endpoints = {
 
     // 💰 Transactions
     addTransaction: "/procxa/add_transaction",
+    getAllTransactions: "/procxa/get_all_transactions",
+    updateTransaction: "/procxa/update_transaction",
+    deleteTransaction: "/procxa/delete_transaction",
 
     // 🔄 Renewal
     getAllRenewalRequests: "/procxa/get_all_renewal_requests",

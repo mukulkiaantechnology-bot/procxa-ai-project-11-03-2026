@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import useApi from "../../hooks/useApi";
 import endpoints from "../../api/endPoints";
 
 const AddSupplier = () => {
   const { post, get, patch, del } = useApi();
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     name: "",
     contactEmail: "",
@@ -37,7 +39,6 @@ const AddSupplier = () => {
       try {
         const response = await get(endpoints.getCategory);
         if (response) {
-          // Handle both response.categories and response.data
           const cats = response.categories || response.data || [];
           setCategories(cats);
         }
@@ -103,7 +104,6 @@ const AddSupplier = () => {
       if (response && response.status) {
         setMessage({ type: "success", message: isEditing ? "Supplier updated successfully!" : "Supplier added successfully!" });
         
-        // Reset form
         setFormData({
           name: "",
           contactEmail: "",
@@ -123,7 +123,7 @@ const AddSupplier = () => {
         });
         setIsEditing(false);
         setEditId(null);
-        fetchSuppliers(); // Refresh list
+        fetchSuppliers();
       } else {
         setMessage({ type: "error", message: response?.message || "Failed to add supplier. Please try again." });
       }
@@ -132,7 +132,6 @@ const AddSupplier = () => {
       setMessage({ type: "error", message: error.message || "Failed to add supplier. Please try again." });
     }
 
-    // Clear message after 3 seconds
     setTimeout(() => {
       setMessage({});
     }, 3000);
@@ -169,8 +168,7 @@ const AddSupplier = () => {
   const handleDelete = async (id) => {
     if (window.confirm("Are you sure you want to delete this supplier?")) {
       try {
-        const response = await del(`${endpoints.deleteSupplier || '/procxa/delete_supplier'}/${id}`);
-        
+        const response = await del(`${endpoints.deleteSupplier}/${id}`);
         if (response && response.status) {
            setMessage({ type: "success", message: "Supplier deleted successfully!" });
            fetchSuppliers();
@@ -186,352 +184,224 @@ const AddSupplier = () => {
   };
 
   return (
-    <div className="container mt-4 mb-5">
-      <div className="row justify-content-center">
-        <div className="col-12 col-lg-10 col-xl-9">
-          <div className="card shadow">
-            <div className="card-header bg-light">
-              <h4 className="text-center mb-0 py-2">Add Supplier</h4>
+    <div className="container mt-4 mb-5 px-2 px-md-4">
+      {/* Header with Back Button */}
+      <div className="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
+        <h2 className="mb-0 fw-bold" style={{ color: "#578E7E" }}>
+          {isEditing ? "Update" : "Add"} Supplier
+        </h2>
+        <button 
+          onClick={() => navigate(-1)} 
+          className="btn text-white d-flex align-items-center gap-2"
+          style={{ backgroundColor: "#578E7E", padding: "8px 20px", borderRadius: "8px", fontWeight: "600" }}
+        >
+          <i className="fa-solid fa-arrow-left"></i> Back
+        </button>
+      </div>
+
+      {message.message && (
+        <div className={`alert alert-${message.type === "success" ? "success" : "danger"} alert-dismissible fade show mb-4 shadow-sm`} role="alert" style={{ borderRadius: "10px" }}>
+          {message.message}
+          <button type="button" className="btn-close" onClick={() => setMessage({})}></button>
+        </div>
+      )}
+
+      {/* Form Card */}
+      <div className="card border-0 shadow p-4 mb-5" style={{ borderRadius: "15px" }}>
+        <form onSubmit={handleSubmit}>
+          <div className="row g-4">
+            <div className="col-md-6">
+              <label className="form-label fw-semibold">Supplier Name <span className="text-danger">*</span></label>
+              <input type="text" className="form-control p-2" name="name" value={formData.name} onChange={handleChange} placeholder="Enter supplier name" required />
             </div>
-            <div className="card-body p-4">
-              {message.message && (
-                <div className={`alert alert-${message.type === "success" ? "success" : "danger"} alert-dismissible fade show`} role="alert">
-                  {message.message}
-                  <button
-                    type="button"
-                    className="btn-close"
-                    onClick={() => setMessage({})}
-                    aria-label="Close"
-                  ></button>
-                </div>
+
+            <div className="col-md-6">
+              <label className="form-label fw-semibold">Contact Email <span className="text-danger">*</span></label>
+              <input type="email" className="form-control p-2" name="contactEmail" value={formData.contactEmail} onChange={handleChange} placeholder="Enter email address" required />
+            </div>
+
+            <div className="col-md-6">
+              <label className="form-label fw-semibold">Contact Phone</label>
+              <input type="text" className="form-control p-2" name="contactPhone" value={formData.contactPhone} onChange={handleChange} placeholder="Enter phone number" />
+            </div>
+
+            <div className="col-md-6">
+              <label className="form-label fw-semibold">Category</label>
+              <select className="form-select p-2" name="categoryId" value={formData.categoryId} onChange={handleCategoryChange}>
+                <option value="">Select Category</option>
+                {categories.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
+              </select>
+            </div>
+
+            <div className="col-md-6">
+              <label className="form-label fw-semibold">Department</label>
+              <select className="form-select p-2" name="departmentId" value={formData.departmentId} onChange={handleChange}>
+                <option value="">Select Department</option>
+                {departments.map((d) => <option key={d.id} value={d.id}>{d.name}</option>)}
+              </select>
+            </div>
+
+            <div className="col-md-6">
+              <label className="form-label fw-semibold">Status</label>
+              <select className="form-select p-2" name="status" value={formData.status} onChange={handleChange}>
+                <option value="active">Active</option>
+                <option value="inactive">Inactive</option>
+              </select>
+            </div>
+
+            <div className="col-12">
+              <label className="form-label fw-semibold">Address</label>
+              <textarea className="form-control p-2" name="address" value={formData.address} onChange={handleChange} rows="2" placeholder="Full address details" />
+            </div>
+
+            <div className="col-md-6">
+              <label className="form-label fw-semibold">Per Unit Price</label>
+              <input type="number" step="0.01" className="form-control p-2" name="perUnitPrice" value={formData.perUnitPrice} onChange={handleChange} placeholder="0.00" />
+            </div>
+
+            <div className="col-md-6">
+              <label className="form-label fw-semibold">Max Unit Purchase for Discount</label>
+              <input type="number" className="form-control p-2" name="maxUnitPurchase" value={formData.maxUnitPurchase} onChange={handleChange} placeholder="0" />
+            </div>
+
+            {formData.maxUnitPurchase && (
+              <div className="col-md-6">
+                <label className="form-label fw-semibold">Discount Percent (%)</label>
+                <input type="number" step="0.01" className="form-control p-2" name="discountPercent" value={formData.discountPercent} onChange={handleChange} placeholder="0%" />
+              </div>
+            )}
+
+            <div className="col-md-6">
+              <label className="form-label fw-semibold">Delivery Terms</label>
+              <input type="text" className="form-control p-2" name="deliveryTerms" value={formData.deliveryTerms} onChange={handleChange} placeholder="Terms for delivery" />
+            </div>
+
+            <div className="col-12">
+              <label className="form-label fw-semibold">Additional Benefits</label>
+              <textarea className="form-control p-2" name="additionalBenefits" value={formData.additionalBenefits} onChange={handleChange} rows="2" placeholder="Extra benefits provided" />
+            </div>
+
+            <div className="col-12 d-flex justify-content-center pt-3 gap-3">
+              <button 
+                type="submit" 
+                className="btn px-5 py-2 text-white fw-bold rounded-pill shadow" 
+                style={{ backgroundColor: "#578E7E", fontSize: "1rem" }}
+              >
+                <i className={isEditing ? "fa-solid fa-pen-to-square me-2" : "fa-solid fa-save me-2"}></i>
+                {isEditing ? "Update Supplier" : "Save Supplier"}
+              </button>
+              {isEditing && (
+                <button
+                  type="button"
+                  className="btn btn-outline-secondary px-5 py-2 fw-bold rounded-pill shadow-sm"
+                  onClick={() => {
+                    setIsEditing(false);
+                    setEditId(null);
+                    setFormData({
+                      name: "", contactEmail: "", contactPhone: "", address: "", taxId: "",
+                      bankDetails: "", paymentTerms: "", perUnitPrice: "", maxUnitPurchase: "",
+                      discountPercent: "", status: "active", categoryId: "", departmentId: "",
+                      deliveryTerms: "", additionalBenefits: "",
+                    });
+                  }}
+                >
+                  Cancel
+                </button>
               )}
-
-              <form onSubmit={handleSubmit}>
-                <div className="row">
-                  {/* Supplier Name */}
-                  <div className="mb-3 col-md-6">
-                    <label className="form-label fw-semibold">Supplier Name <span className="text-danger">*</span></label>
-                    <input
-                      type="text"
-                      className="form-control"
-                      name="name"
-                      value={formData.name}
-                      onChange={handleChange}
-                      required
-                    />
-                  </div>
-
-                  {/* Contact Email */}
-                  <div className="mb-3 col-md-6">
-                    <label className="form-label fw-semibold">Contact Email <span className="text-danger">*</span></label>
-                    <input
-                      type="email"
-                      className="form-control"
-                      name="contactEmail"
-                      value={formData.contactEmail}
-                      onChange={handleChange}
-                      required
-                    />
-                  </div>
-
-                  {/* Contact Phone */}
-                  <div className="mb-3 col-md-6">
-                    <label className="form-label fw-semibold">Contact Phone</label>
-                    <input
-                      type="text"
-                      className="form-control"
-                      name="contactPhone"
-                      value={formData.contactPhone}
-                      onChange={handleChange}
-                    />
-                  </div>
-
-                  {/* Category */}
-                  <div className="mb-3 col-md-6">
-                    <label className="form-label fw-semibold">Category</label>
-                    <select
-                      className="form-select"
-                      name="categoryId"
-                      value={formData.categoryId}
-                      onChange={handleCategoryChange}
-                    >
-                      <option value="">Select Category</option>
-                      {categories.map((category) => (
-                        <option key={category.id} value={category.id}>
-                          {category.name}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-
-
-
-                  {/* Department */}
-                  <div className="mb-3 col-md-6">
-                    <label className="form-label fw-semibold">Department</label>
-                    <select
-                      className="form-select"
-                      name="departmentId"
-                      value={formData.departmentId}
-                      onChange={handleChange}
-                    >
-                      <option value="">Select Department</option>
-                      {departments.map((department) => (
-                        <option key={department.id} value={department.id}>
-                          {department.name}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-
-                  {/* Status */}
-                  <div className="mb-3 col-md-6">
-                    <label className="form-label fw-semibold">Status</label>
-                    <select
-                      className="form-select"
-                      name="status"
-                      value={formData.status}
-                      onChange={handleChange}
-                    >
-                      <option value="active">Active</option>
-                      <option value="inactive">Inactive</option>
-                    </select>
-                  </div>
-
-                  {/* Address */}
-                  <div className="mb-3 col-md-12">
-                    <label className="form-label fw-semibold">Address</label>
-                    <textarea
-                      className="form-control"
-                      name="address"
-                      value={formData.address}
-                      onChange={handleChange}
-                      rows="3"
-                    />
-                  </div>
-
-                  {/* Per Unit Price */}
-                  <div className="mb-3 col-md-6">
-                    <label className="form-label fw-semibold">Per Unit Price</label>
-                    <input
-                      type="number"
-                      step="0.01"
-                      className="form-control"
-                      name="perUnitPrice"
-                      value={formData.perUnitPrice}
-                      onChange={handleChange}
-                    />
-                  </div>
-
-                  {/* Max Unit Purchase */}
-                  <div className="mb-3 col-md-6">
-                    <label className="form-label fw-semibold">Max Unit Purchase for Discount</label>
-                    <input
-                      type="number"
-                      className="form-control"
-                      name="maxUnitPurchase"
-                      value={formData.maxUnitPurchase}
-                      onChange={handleChange}
-                    />
-                  </div>
-
-                  {/* Discount Percent */}
-                  {formData.maxUnitPurchase && (
-                    <div className="mb-3 col-md-6">
-                      <label className="form-label fw-semibold">Discount Percent (%)</label>
-                      <input
-                        type="number"
-                        step="0.01"
-                        className="form-control"
-                        name="discountPercent"
-                        value={formData.discountPercent}
-                        onChange={handleChange}
-                      />
-                    </div>
-                  )}
-
-                  {/* Delivery Terms */}
-                  <div className="mb-3 col-md-6">
-                    <label className="form-label fw-semibold">Delivery Terms</label>
-                    <input
-                      type="text"
-                      className="form-control"
-                      name="deliveryTerms"
-                      value={formData.deliveryTerms}
-                      onChange={handleChange}
-                    />
-                  </div>
-
-                  {/* Additional Benefits */}
-                  <div className="mb-3 col-md-12">
-                    <label className="form-label fw-semibold">Additional Benefits</label>
-                    <textarea
-                      className="form-control"
-                      name="additionalBenefits"
-                      value={formData.additionalBenefits}
-                      onChange={handleChange}
-                      rows="3"
-                    />
-                  </div>
-                </div>
-
-                <div className="text-center mt-4">
-                  <button
-                    type="submit"
-                    className="btn btn-primary px-5"
-                    style={{ backgroundColor: "#578e7e", border: "none" }}
-                  >
-                    <i className={isEditing ? "fa-solid fa-pen me-2" : "fa-solid fa-save me-2"}></i>
-                    {isEditing ? "Update" : "Submit"}
-                  </button>
-                  {isEditing && (
-                    <button
-                      type="button"
-                      className="btn btn-secondary px-5 ms-3"
-                      onClick={() => {
-                        setIsEditing(false);
-                        setEditId(null);
-                        setFormData({
-                          name: "", contactEmail: "", contactPhone: "", address: "", taxId: "",
-                          bankDetails: "", paymentTerms: "", perUnitPrice: "", maxUnitPurchase: "",
-                          discountPercent: "", status: "active", categoryId: "", departmentId: "",
-                          deliveryTerms: "", additionalBenefits: "",
-                        });
-                      }}
-                    >
-                      Cancel
-                    </button>
-                  )}
-                </div>
-              </form>
             </div>
           </div>
-        </div>
+        </form>
       </div>
 
       {/* Supplier List Table */}
-      <div className="row justify-content-center mt-5">
-        <div className="col-12 col-lg-10 col-xl-11">
-          <div className="card shadow">
-            <div className="card-header bg-light">
-              <h4 className="text-center mb-0 py-2">Supplier Overview</h4>
-            </div>
-            <div className="card-body p-4 table-responsive">
-              <table className="table table-hover table-bordered align-middle text-center">
-                <thead className="table-light">
-                  <tr>
-                    <th>S.No</th>
-                    <th>Supplier Name</th>
-                    <th>Email</th>
-                    <th>Category</th>
-                    <th>Department</th>
-                    <th>Status</th>
-                    <th>Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {suppliers.map((supplier, index) => (
-                    <tr key={supplier.id}>
-                      <td>{index + 1}</td>
-                      <td>{supplier.name}</td>
-                      <td>{supplier.contactEmail}</td>
-                      <td>{supplier.category?.name || "-"}</td>
-                      <td>{supplier.department?.name || "-"}</td>
-                      <td>
-                        <span className={`badge ${supplier.status === "active" ? "bg-success" : "bg-danger"}`}>
-                          {supplier.status}
-                        </span>
-                      </td>
-                      <td>
-                        <button
-                          className="btn btn-sm btn-outline-info me-2"
-                          onClick={() => handleView(supplier)}
-                        >
-                          <i className="fa-solid fa-eye"></i>
-                        </button>
-                        <button
-                          className="btn btn-sm btn-outline-primary me-2"
-                          onClick={() => handleEdit(supplier)}
-                        >
-                          <i className="fa-solid fa-pen"></i>
-                        </button>
-                        <button
-                          className="btn btn-sm btn-outline-danger"
-                          onClick={() => handleDelete(supplier.id)}
-                        >
-                          <i className="fa-solid fa-trash"></i>
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
-                  {suppliers.length === 0 && (
-                    <tr>
-                      <td colSpan="7" className="text-muted py-4">No suppliers found.</td>
-                    </tr>
-                  )}
-                </tbody>
-              </table>
-            </div>
-          </div>
+      <div className="card border-0 shadow p-4 overflow-hidden" style={{ borderRadius: "15px" }}>
+        <h4 className="fw-bold mb-4" style={{ color: "#333" }}>Supplier Overview</h4>
+        <div className="table-responsive">
+          <table className="table table-hover align-middle text-center">
+            <thead className="table-light">
+              <tr style={{ color: "#578E7E" }}>
+                <th>S.No</th>
+                <th>Supplier Name</th>
+                <th>Email</th>
+                <th>Category</th>
+                <th>Department</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {suppliers.map((supplier, index) => (
+                <tr key={supplier.id}>
+                  <td>{index + 1}</td>
+                  <td className="fw-semibold">{supplier.name}</td>
+                  <td>{supplier.contactEmail}</td>
+                  <td>{supplier.category?.name || "-"}</td>
+                  <td>{supplier.department?.name || "-"}</td>
+                  <td>
+                    <span className={`badge rounded-pill px-3 py-2 ${supplier.status === "active" ? "bg-success" : "bg-danger"}`} style={{ fontSize: "0.85rem" }}>
+                      {supplier.status.charAt(0).toUpperCase() + supplier.status.slice(1)}
+                    </span>
+                  </td>
+                  <td>
+                    <div className="d-flex justify-content-center gap-2">
+                      <button className="btn btn-sm btn-outline-success" onClick={() => handleView(supplier)} title="View">
+                        <i className="fa-solid fa-eye"></i>
+                      </button>
+                      <button className="btn btn-sm btn-outline-primary" onClick={() => handleEdit(supplier)} title="Edit">
+                        <i className="fa-solid fa-pen-to-square"></i>
+                      </button>
+                      <button className="btn btn-sm btn-outline-danger" onClick={() => handleDelete(supplier.id)} title="Delete">
+                        <i className="fa-solid fa-trash"></i>
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+              {suppliers.length === 0 && (
+                <tr>
+                  <td colSpan="7" className="text-muted py-5">No suppliers found.</td>
+                </tr>
+              )}
+            </tbody>
+          </table>
         </div>
       </div>
+
       {/* View Supplier Modal */}
       {showViewModal && selectedSupplier && (
-        <div className="modal show d-block" tabIndex="-1" style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}>
+        <div className="modal fade show d-block" style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}>
           <div className="modal-dialog modal-lg modal-dialog-centered">
-            <div className="modal-content">
-              <div className="modal-header bg-light">
-                <h5 className="modal-title">Supplier Details</h5>
+            <div className="modal-content shadow-lg border-0" style={{ borderRadius: '15px' }}>
+              <div className="modal-header border-0 pb-0">
+                <h5 className="modal-title fw-bold" style={{ color: '#578E7E' }}>Supplier Details</h5>
                 <button type="button" className="btn-close" onClick={() => setShowViewModal(false)}></button>
               </div>
-              <div className="modal-body">
-                <div className="row">
-                  <div className="col-md-6 mb-3">
-                    <strong>Name:</strong> <span className="text-muted">{selectedSupplier.name}</span>
+              <div className="modal-body py-4">
+                <div className="row g-4 px-3">
+                  <div className="col-md-6"><small className="text-muted d-block">Name</small><strong className="fs-5">{selectedSupplier.name}</strong></div>
+                  <div className="col-md-6"><small className="text-muted d-block">Email</small><strong>{selectedSupplier.contactEmail}</strong></div>
+                  <div className="col-md-6"><small className="text-muted d-block">Phone</small><strong>{selectedSupplier.contactPhone || '-'}</strong></div>
+                  <div className="col-md-6"><small className="text-muted d-block">Category</small><strong>{selectedSupplier.category?.name || '-'}</strong></div>
+                  <div className="col-md-6"><small className="text-muted d-block">Department</small><strong>{selectedSupplier.department?.name || '-'}</strong></div>
+                  <div className="col-md-6">
+                    <small className="text-muted d-block">Status</small>
+                    <span className={`badge rounded-pill px-3 mt-1 ${selectedSupplier.status === 'active' ? 'bg-success' : 'bg-danger'}`}>{selectedSupplier.status}</span>
                   </div>
-                  <div className="col-md-6 mb-3">
-                    <strong>Email:</strong> <span className="text-muted">{selectedSupplier.contactEmail}</span>
-                  </div>
-                  <div className="col-md-6 mb-3">
-                    <strong>Phone:</strong> <span className="text-muted">{selectedSupplier.contactPhone || '-'}</span>
-                  </div>
-                  <div className="col-md-6 mb-3">
-                    <strong>Category:</strong> <span className="text-muted">{selectedSupplier.category?.name || '-'}</span>
-                  </div>
-                  <div className="col-md-6 mb-3">
-                    <strong>Department:</strong> <span className="text-muted">{selectedSupplier.department?.name || '-'}</span>
-                  </div>
-                  <div className="col-md-6 mb-3">
-                    <strong>Status:</strong> <span className={`badge ${selectedSupplier.status === 'active' ? 'bg-success' : 'bg-danger'}`}>{selectedSupplier.status}</span>
-                  </div>
-                  <div className="col-md-12 mb-3">
-                    <strong>Address:</strong> <span className="text-muted">{selectedSupplier.address || '-'}</span>
-                  </div>
-                  <div className="col-md-6 mb-3">
-                    <strong>Per Unit Price:</strong> <span className="text-muted">{selectedSupplier.perUnitPrice || '-'}</span>
-                  </div>
-                  <div className="col-md-6 mb-3">
-                    <strong>Max Unit Purchase:</strong> <span className="text-muted">{selectedSupplier.maxUnitPurchase || '-'}</span>
-                  </div>
-                  <div className="col-md-6 mb-3">
-                    <strong>Discount Percent:</strong> <span className="text-muted">{selectedSupplier.discountPercent ? `${selectedSupplier.discountPercent}%` : '-'}</span>
-                  </div>
-                  <div className="col-md-6 mb-3">
-                    <strong>Delivery Terms:</strong> <span className="text-muted">{selectedSupplier.deliveryTerms || '-'}</span>
-                  </div>
-                  <div className="col-md-12 mb-3">
-                    <strong>Additional Benefits:</strong> <span className="text-muted">{selectedSupplier.additionalBenefits || '-'}</span>
-                  </div>
+                  <div className="col-12"><small className="text-muted d-block">Address</small><strong>{selectedSupplier.address || '-'}</strong></div>
+                  <div className="col-md-4"><small className="text-muted d-block">Per Unit Price</small><strong>${selectedSupplier.perUnitPrice || '0'}</strong></div>
+                  <div className="col-md-4"><small className="text-muted d-block">Max Unit Discount</small><strong>{selectedSupplier.maxUnitPurchase || '-'}</strong></div>
+                  <div className="col-md-4"><small className="text-muted d-block">Discount %</small><strong>{selectedSupplier.discountPercent ? `${selectedSupplier.discountPercent}%` : '-'}</strong></div>
+                  <div className="col-md-12"><small className="text-muted d-block">Delivery Terms</small><strong>{selectedSupplier.deliveryTerms || '-'}</strong></div>
+                  <div className="col-12"><small className="text-muted d-block">Additional Benefits</small><strong>{selectedSupplier.additionalBenefits || '-'}</strong></div>
                 </div>
               </div>
-              <div className="modal-footer">
-                <button type="button" className="btn btn-secondary" onClick={() => setShowViewModal(false)}>Close</button>
+              <div className="modal-footer border-0 pt-0">
+                <button type="button" className="btn btn-secondary px-4 rounded-pill" onClick={() => setShowViewModal(false)}>Close</button>
               </div>
             </div>
           </div>
         </div>
       )}
-
     </div>
   );
 };

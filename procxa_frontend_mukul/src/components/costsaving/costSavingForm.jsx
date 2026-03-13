@@ -558,7 +558,7 @@ const CostSavingForm = () => {
 
         {/* Forecast Table */}
         <div className="mt-4">
-          <h5 className="text-center text-md-start">Forecasted Volume (Annual)</h5>
+          <h5 className="text-center text-md-start">Forecasted price (Multi-Year)</h5>
           <div style={{ overflowX: 'auto', width: '100%' }}>
             <table
               className="table table-bordered text-center"
@@ -695,7 +695,7 @@ const CostSavingForm = () => {
         </div>
 
         {/* Forecast Volume (Multi-Year) Table */}
-        <div className="mt-4">
+        {/* <div className="mt-4">
           <h5 className="text-center text-md-start">Forecasted Volume (Multi-Year)</h5>
           <div style={{ overflowX: 'auto', width: '100%' }}>
             <table
@@ -793,7 +793,7 @@ const CostSavingForm = () => {
               </tbody>
             </table>
           </div>
-        </div>
+        </div> */}
 
         {/* Sourcing Benefit Table */}
         <div className="mt-4">

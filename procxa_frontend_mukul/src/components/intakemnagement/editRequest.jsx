@@ -27,9 +27,8 @@ const EditIntakeRequest = () => {
 
   const fetchData = async () => {
     try {
-      const [categoryResponse, subCategoryResponse, departmentsResponse, supplierResponse, intakeResponse, templatesResponse] = await Promise.all([
+      const [categoryResponse, departmentsResponse, supplierResponse, intakeResponse, templatesResponse] = await Promise.all([
         get(endpoints.getCategory).catch(() => null),
-
         get(endpoints.getAllDepartments).catch(() => null),
         get(endpoints.getSuppliers).catch(() => null),
         get(`${endpoints.getIntakeRequestById}/${id}`).catch(() => null),
@@ -93,11 +92,13 @@ const EditIntakeRequest = () => {
       setMessage({ type: "error", text: error.message || "Failed to update the request." });
     }
   };
-  const supplierOptions = suppliers.map((supplier) => ({
-    label: supplier.name,
-    value: supplier.contactEmail,
-    supplier,
-  }));
+  const supplierOptions = Array.isArray(suppliers)
+    ? suppliers.map((supplier) => ({
+        label: supplier.name,
+        value: supplier.contactEmail,
+        supplier,
+      }))
+    : [];
   const handleSupplierChange = (selectedOption) => {
     if (selectedOption?.supplier) {
       const { supplier } = selectedOption;
@@ -123,10 +124,12 @@ const EditIntakeRequest = () => {
       });
     }
   };
-  const categoryOptions = categories.map((category) => ({
-    value: category.id,
-    label: category.name,
-  }));
+  const categoryOptions = Array.isArray(categories)
+    ? categories.map((category) => ({
+        value: category.id,
+        label: category.name,
+      }))
+    : [];
 
 
   return (
@@ -431,7 +434,7 @@ const EditIntakeRequest = () => {
               style={{ fontSize: "16px", fontFamily: "inherit", color: "gray" }}
             >
               <option value="">Department</option>
-              {departments.length > 0 ? (
+              {Array.isArray(departments) && departments.length > 0 ? (
                 departments.map((department) => (
                   <option key={department.id} value={department.id}>
                     {department.name}

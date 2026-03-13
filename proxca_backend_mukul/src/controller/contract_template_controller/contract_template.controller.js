@@ -234,17 +234,17 @@ const delete_contract_template = async (req, res) => {
       });
     }
 
-    // Check if any contracts are using this template
-    const contractCount = await db.contract.count({
-      where: { agreementId: id }
-    });
+    // Nullify references in linked contracts to allow deletion
+    await db.contract.update(
+      { agreementId: null },
+      { where: { agreementId: id } }
+    );
 
-    if (contractCount > 0) {
-      return res.status(400).json({
-        status: false,
-        message: `Cannot delete this template because it is currently linked to ${contractCount} active contract(s). Please reassign or delete the contracts first.`,
-      });
-    }
+    // Nullify references in linked intake requests to allow deletion
+    await db.intake_request.update(
+      { assigncontractTemplateId: null },
+      { where: { assigncontractTemplateId: id } }
+    );
 
     await template.destroy();
 

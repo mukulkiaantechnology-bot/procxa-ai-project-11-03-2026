@@ -8,12 +8,11 @@ module.exports = (sequelize, DataTypes) => {
         },
         supplier1: {
             type: DataTypes.BIGINT,
-            allowNull: false,
+            allowNull: true,
         },
-
         supplier2: {
             type: DataTypes.BIGINT,
-            allowNull: false,
+            allowNull: true,
         },
         
         recommendedSupplierId: {

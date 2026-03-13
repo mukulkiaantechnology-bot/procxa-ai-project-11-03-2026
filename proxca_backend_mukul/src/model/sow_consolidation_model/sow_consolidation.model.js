@@ -7,7 +7,7 @@ module.exports = (sequelize, DataTypes) => {
         },
         requestedTeamDepartmentId: {
             type: DataTypes.BIGINT,
-            allowNull: false,
+            allowNull: true,
         },
         requestedServiceTool: {
             type: DataTypes.STRING,

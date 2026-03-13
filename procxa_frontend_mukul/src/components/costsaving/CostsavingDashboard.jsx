@@ -15,9 +15,7 @@ const CostsavingDashboard = () => {
   const [showViewModal, setShowViewModal] = useState(false);
   const [selectedSaving, setSelectedSaving] = useState(null);
 
-  // Delete Modal state
-  const [showDeleteModal, setShowDeleteModal] = useState(false);
-  const [deleteSavingId, setDeleteSavingId] = useState(null);
+
 
   useEffect(() => {
     fetchCostSavings();
@@ -46,23 +44,16 @@ const CostsavingDashboard = () => {
     setShowViewModal(true);
   };
 
-  const handleDeletePrompt = (id) => {
-    setDeleteSavingId(id);
-    setShowDeleteModal(true);
-  };
-
-  const confirmDelete = async () => {
-    try {
-      const resp = await del(`${endpoints.deleteCostSaving}/${deleteSavingId}`);
-      if (resp.status == 200 || resp.message) {
-        // Assume success
-        fetchCostSavings();
+  const handleDelete = async (id) => {
+    if (window.confirm("Are you sure you want to delete this Cost Saving record?")) {
+      try {
+        const resp = await del(`${endpoints.deleteCostSaving}/${id}`);
+        if (resp.status == 200 || resp.success || resp.message) {
+          fetchCostSavings();
+        }
+      } catch (error) {
+        console.error("Failed to delete", error);
       }
-    } catch (error) {
-      console.error("Failed to delete", error);
-    } finally {
-      setShowDeleteModal(false);
-      setDeleteSavingId(null);
     }
   };
 
@@ -240,7 +231,7 @@ const CostsavingDashboard = () => {
                           </button>
                           <button
                             className="btn btn-sm btn-outline-danger rounded-circle"
-                            onClick={() => handleDeletePrompt(saving.id)}
+                            onClick={() => handleDelete(saving.id)}
                             title="Delete"
                           >
                             <i className="fa-solid fa-trash"></i>
@@ -256,24 +247,6 @@ const CostsavingDashboard = () => {
         </div>
       </div>
 
-      {/* Delete Confirmation Modal */}
-      <Modal show={showDeleteModal} onHide={() => setShowDeleteModal(false)} centered>
-        <Modal.Header closeButton className="border-0">
-          <Modal.Title className="text-danger fw-bold"><i className="fa-solid fa-triangle-exclamation me-2"></i> Confirm Deletion</Modal.Title>
-        </Modal.Header>
-        <Modal.Body className="text-center">
-          <p className="fs-5 mb-0">Are you sure you want to delete this Cost Saving record?</p>
-          <p className="text-muted">This action cannot be undone.</p>
-        </Modal.Body>
-        <Modal.Footer className="border-0 d-flex justify-content-center">
-          <Button variant="light" onClick={() => setShowDeleteModal(false)} className="px-4 shadow-sm border">
-            Cancel
-          </Button>
-          <Button variant="danger" onClick={confirmDelete} className="px-4 shadow-sm">
-            Yes, Delete
-          </Button>
-        </Modal.Footer>
-      </Modal>
 
       {/* View Details Modal */}
       <Modal show={showViewModal} onHide={() => setShowViewModal(false)} size="lg" centered>

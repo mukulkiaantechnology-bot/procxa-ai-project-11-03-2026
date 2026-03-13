@@ -12,7 +12,7 @@ module.exports = (sequelize, DataTypes) => {
         },
         supplierId: {
             type: DataTypes.BIGINT,
-            allowNull: false,
+            allowNull: true,
         },
         assignedAt: {
             type: DataTypes.DATE,

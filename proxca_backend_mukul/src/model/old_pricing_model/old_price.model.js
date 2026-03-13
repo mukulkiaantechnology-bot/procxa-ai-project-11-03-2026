@@ -7,11 +7,11 @@ module.exports = (sequelize, DataTypes) => {
         },
         supplierId: {
             type: DataTypes.BIGINT,
-            allowNull: false,
+            allowNull: true,
         },
         categoryId: {
             type: DataTypes.BIGINT,
-            allowNull: false,
+            allowNull: true,
         },
 
         oldPrice: {

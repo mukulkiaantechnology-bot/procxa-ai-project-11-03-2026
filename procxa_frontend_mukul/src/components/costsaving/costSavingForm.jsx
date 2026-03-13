@@ -3,16 +3,6 @@ import { useLocation, useNavigate } from "react-router-dom";
 import endpoints from "../../api/endPoints";
 import useApi from "../../hooks/useApi";
 
-const initialRow = {
-  Group: "",
-  Supplier: "",
-  Category: "",
-  "Savings Year": "",
-  "Savings Type": "",
-  "In Year Benefit": "",
-  "Run Rate": "",
-  Currency: "",
-};
 
 const initialYears = ["2025", "2026", "2027", "2028", "2029"];
 const defaultColumns = ["Baseline", "New Cost", "Annualized Benefits", "item1", "item2", "item3"];
@@ -44,6 +34,7 @@ const CostSavingForm = () => {
     reportingYear: "",
     currency: "USD",
     benefitStartMonth: "",
+    benefitEndMonth: "",
     typeOfCostSaving: "",
     historicalUnitPrice: "",
     negotiatedUnitPrice: "",
@@ -58,7 +49,6 @@ const CostSavingForm = () => {
     intakeRequest: "",
   });
 
-  const [rows, setRows] = useState([{ ...initialRow }]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -66,16 +56,69 @@ const CostSavingForm = () => {
   };
 
   const handleForecastChange = (year, item, value) => {
-    setFormData((prev) => ({
-      ...prev,
-      forecastVolumes: {
-        ...prev.forecastVolumes,
-        [year]: {
-          ...prev.forecastVolumes[year],
+    setFormData((prev) => {
+      const years = Object.keys(prev.forecastVolumes).sort();
+      const yearIndex = years.indexOf(year);
+      
+      const newForecastVolumes = { ...prev.forecastVolumes };
+      
+      // Update the current year
+      const updatedYearData = {
+        ...(newForecastVolumes[year] || {}),
+        [item]: value,
+      };
+
+      // Auto-calculate Annualized Benefits: Baseline - New Cost
+      if (item === "Baseline" || item === "New Cost") {
+        const baseline = parseFloat(updatedYearData["Baseline"]) || 0;
+        const newCost = parseFloat(updatedYearData["New Cost"]) || 0;
+        updatedYearData["Annualized Benefits"] = (baseline - newCost).toFixed(2);
+      }
+      
+      newForecastVolumes[year] = updatedYearData;
+
+      // Auto-fill future years
+      for (let i = yearIndex + 1; i < years.length; i++) {
+        const futureYear = years[i];
+        newForecastVolumes[futureYear] = {
+          ...newForecastVolumes[futureYear],
           [item]: value,
-        },
-      },
-    }));
+        };
+        
+        // Re-calculate future year benefits
+        const baseline = parseFloat(newForecastVolumes[futureYear]["Baseline"]) || 0;
+        const newCost = parseFloat(newForecastVolumes[futureYear]["New Cost"]) || 0;
+        newForecastVolumes[futureYear]["Annualized Benefits"] = (baseline - newCost).toFixed(2);
+      }
+
+      return {
+        ...prev,
+        forecastVolumes: newForecastVolumes,
+      };
+    });
+  };
+
+  const handleHistoricalChange = (year, col, value) => {
+    setFormData((prev) => {
+      const years = Object.keys(prev.historicalUnitPrices).sort();
+      const yearIndex = years.indexOf(year);
+      
+      const newHistoricalUnitPrices = { ...prev.historicalUnitPrices };
+      
+      // Update current and future years
+      for (let i = yearIndex; i < years.length; i++) {
+        const targetYear = years[i];
+        newHistoricalUnitPrices[targetYear] = {
+          ...(newHistoricalUnitPrices[targetYear] || {}),
+          [col]: value,
+        };
+      }
+      
+      return {
+        ...prev,
+        historicalUnitPrices: newHistoricalUnitPrices,
+      };
+    });
   };
 
   const handleAddColumn = () => {
@@ -116,19 +159,6 @@ const CostSavingForm = () => {
     }));
   };
 
-  const handleSourcingChange = (index, field, value) => {
-    const updatedRows = [...rows];
-    updatedRows[index][field] = value;
-    setRows(updatedRows);
-  };
-
-  const addSourcingRow = () => {
-    setRows([...rows, { ...initialRow }]);
-  };
-
-  const removeSourcingRow = (index) => {
-    setRows(rows.filter((_, i) => i !== index));
-  };
 
   const handleRemoveRow = (rowIndex) => {
     const years = Object.keys(formData.forecastVolumes);
@@ -202,6 +232,7 @@ const CostSavingForm = () => {
       "reportingYear",
       "currency",
       "benefitStartMonth",
+      "benefitEndMonth",
       "typeOfCostSaving",
       "intakeRequest",
     ];
@@ -216,7 +247,6 @@ const CostSavingForm = () => {
     try {
       const payload = {
         ...formData,
-        sourcingBenefits: rows,
       };
 
       let response;
@@ -240,6 +270,7 @@ const CostSavingForm = () => {
         reportingYear: "",
         currency: "USD",
         benefitStartMonth: "",
+        benefitEndMonth: "",
         typeOfCostSaving: "",
         historicalUnitPrice: "",
         negotiatedUnitPrice: "",
@@ -253,7 +284,6 @@ const CostSavingForm = () => {
         additionalColumns: [],
         intakeRequest: "",
       });
-      setRows([{ ...initialRow }]);
     } catch (err) {
       alert("Error submitting form.");
       console.error(err);
@@ -311,7 +341,6 @@ const CostSavingForm = () => {
           if (res) {
              const data = res.data || res;
 
-             // Ensure JSON fields are parsed correctly to avoid "map is not a function" errors
              let parsedForecastVolumes = data.forecastVolumes;
              if (typeof parsedForecastVolumes === "string") {
                try { parsedForecastVolumes = JSON.parse(parsedForecastVolumes); } catch(e) {}
@@ -328,10 +357,6 @@ const CostSavingForm = () => {
              if (typeof parsedAdditionalColumns === "string") {
                try { parsedAdditionalColumns = JSON.parse(parsedAdditionalColumns); } catch(e) {}
              }
-             let parsedSourcingBenefits = data.sourcingBenefits;
-             if (typeof parsedSourcingBenefits === "string") {
-               try { parsedSourcingBenefits = JSON.parse(parsedSourcingBenefits); } catch(e) {}
-             }
 
              setFormData({
                ...formData,
@@ -342,6 +367,7 @@ const CostSavingForm = () => {
                reportingYear: data.reportingYear || "",
                currency: data.currency || "USD",
                benefitStartMonth: data.benefitStartMonth || "",
+               benefitEndMonth: data.benefitEndMonth || "",
                typeOfCostSaving: data.typeOfCostSaving || "",
                historicalUnitPrice: data.historicalUnitPrice || "",
                negotiatedUnitPrice: data.negotiatedUnitPrice || "",
@@ -355,11 +381,6 @@ const CostSavingForm = () => {
                additionalColumns: Array.isArray(parsedAdditionalColumns) ? parsedAdditionalColumns : [],
                intakeRequest: data.intakeRequest || ""
              });
-             if (parsedSourcingBenefits && Array.isArray(parsedSourcingBenefits) && parsedSourcingBenefits.length > 0) {
-               setRows(parsedSourcingBenefits);
-             } else if (parsedSourcingBenefits && typeof parsedSourcingBenefits === 'object') {
-               setRows([parsedSourcingBenefits]);
-             }
           }
         } catch (error) {
           console.error("Error fetching cost saving details:", error);
@@ -583,6 +604,39 @@ const CostSavingForm = () => {
             </select>
           </div>
 
+          <div className="mb-3 col-12 col-md-6 col-lg-4">
+            <label htmlFor="benefitEndMonth" className="form-label">
+              Benefit End Month
+            </label>
+            <select
+              id="benefitEndMonth"
+              name="benefitEndMonth"
+              className="form-select"
+              value={formData.benefitEndMonth}
+              onChange={handleChange}
+            >
+              <option value="">Select Month</option>
+              {[
+                "January",
+                "February",
+                "March",
+                "April",
+                "May",
+                "June",
+                "July",
+                "August",
+                "September",
+                "October",
+                "November",
+                "December",
+              ].map((month) => (
+                <option key={month} value={month}>
+                  {month}
+                </option>
+              ))}
+            </select>
+          </div>
+
           {/* Current Price */}
           <div className="mb-3 col-12 col-md-6 col-lg-4">
             <label htmlFor="currentPrice" className="form-label">
@@ -658,7 +712,7 @@ const CostSavingForm = () => {
 
         {/* Forecast Table */}
         <div className="mt-4">
-          <h5 className="text-center text-md-start">Forecasted price (Multi-Year)</h5>
+          <h5 className="text-center text-md-start">Forecasted Saving (Multi-Year)</h5>
           <div style={{ overflowX: 'auto', width: '100%' }}>
             <table
               className="table table-bordered text-center"
@@ -713,10 +767,7 @@ const CostSavingForm = () => {
               </thead>
               <tbody>
                 {Object.entries(formData.forecastVolumes).map(([year, data], rowIndex) => {
-                  const total = [...staticColumns, ...itemColumns].reduce(
-                    (sum, col) => sum + (parseFloat(data[col]) || 0),
-                    0
-                  );
+                  const totalSaving = parseFloat(data["Annualized Benefits"]) || 0;
                   return (
                     <tr key={year}>
                       <td style={{ textAlign: 'center', verticalAlign: 'middle', whiteSpace: 'nowrap' }}>
@@ -726,10 +777,11 @@ const CostSavingForm = () => {
                         <td key={col}>
                           <input
                             type="number"
-                            className="form-control"
+                            className={`form-control ${col === "Annualized Benefits" ? "bg-light" : ""}`}
                             style={{ width: '100%' }}
                             value={data[col]}
                             onChange={(e) => handleForecastChange(year, col, e.target.value)}
+                            readOnly={col === "Annualized Benefits"}
                           />
                         </td>
                       ))}
@@ -740,23 +792,12 @@ const CostSavingForm = () => {
                             className="form-control"
                             style={{ width: '100%' }}
                             value={formData.historicalUnitPrices?.[year]?.[col] || ''}
-                            onChange={(e) =>
-                              setFormData((prev) => ({
-                                ...prev,
-                                historicalUnitPrices: {
-                                  ...prev.historicalUnitPrices,
-                                  [year]: {
-                                    ...(prev.historicalUnitPrices?.[year] || {}),
-                                    [col]: e.target.value,
-                                  },
-                                },
-                              }))
-                            }
+                            onChange={(e) => handleHistoricalChange(year, col, e.target.value)}
                           />
                         </td>
                       ))}
                       <td style={{ textAlign: 'center', verticalAlign: 'middle' }}>
-                        <strong>{total.toFixed(2)}</strong>
+                        <strong>{totalSaving.toFixed(2)}</strong>
                       </td>
                       <td style={{ textAlign: 'center', verticalAlign: 'middle', whiteSpace: 'nowrap' }}>
                         <button
@@ -895,175 +936,6 @@ const CostSavingForm = () => {
           </div>
         </div> */}
 
-        {/* Sourcing Benefit Table */}
-        <div className="mt-4">
-          <h5 className="text-center text-md-start">Sourcing Benefit</h5>
-          <div style={{ overflowX: 'auto', width: '100%' }}>
-            <table
-              className="table table-bordered text-center"
-              style={{
-                tableLayout: 'fixed',
-                minWidth: '800px',
-                width: 'max-content'
-              }}
-            >
-              <thead className="table-light">
-                <tr>
-                  {[
-                    "Group",
-                    "Supplier",
-                    "Category",
-                    "Savings Year",
-                    "Savings Type",
-                    "In Year Benefit",
-                    "Run Rate",
-                    "Currency",
-                  ].map((col) => (
-                    <th
-                      key={col}
-                      style={{ whiteSpace: 'nowrap', textAlign: 'center', verticalAlign: 'middle' }}
-                    >
-                      {col}
-                    </th>
-                  ))}
-                  <th style={{ whiteSpace: 'nowrap', textAlign: 'center', verticalAlign: 'middle' }}>
-                    Action
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {rows.map((row, index) => (
-                  <tr key={index}>
-                    {[
-                      "Group",
-                      "Supplier",
-                      "Category",
-                      "Savings Year",
-                      "Savings Type",
-                      "In Year Benefit",
-                      "Run Rate",
-                      "Currency",
-                    ].map((col) => (
-                      <td key={col}>
-                        {/* {col === "Supplier" ? (
-                            <select
-                              className="form-select"
-                              style={{
-                                width: '100%',
-                                height: '36px',
-                              }}
-                              value={row[col]}
-                              onChange={(e) => handleSourcingChange(index, col, e.target.value)}
-                            >
-                              <option value="">Select Supplier</option>
-                              {suppliers.map((supplier) => (
-                                <option key={supplier.id} value={supplier.name || supplier.supplierName}>
-                                  {supplier.name || supplier.supplierName}
-                                </option>
-                              ))}
-                            </select>
-                            
-                          ) : (
-                            <input
-                              type={
-                                col.includes("Year") ||
-                                col.includes("Benefit") ||
-                                col.includes("Rate")
-                                  ? "number"
-                                  : "text"
-                              }
-                              className="form-control"
-                              style={{
-                                width: '100%',
-                                height: '36px',
-                                textAlign: 'center',
-                              }}
-                              value={row[col]}
-                              onChange={(e) => handleSourcingChange(index, col, e.target.value)}
-                            />
-                          )} */}
-
-                        {col === "Supplier" ? (
-                          <select
-                            className="form-select"
-                            style={{ width: "100%", height: "36px" }}
-                            value={row[col]}
-                            onChange={(e) => handleSourcingChange(index, col, e.target.value)}
-                          >
-                            <option value="">Select Supplier</option>
-                            {suppliers.map((supplier) => (
-                              <option
-                                key={supplier.id}
-                                value={supplier.id}
-                              >
-                                {supplier.name || supplier.supplierName}
-                              </option>
-                            ))}
-                          </select>
-                        ) : col === "Category" ? (
-                          <select
-                            className="form-select"
-                            style={{ width: "100%", height: "36px" }}
-                            value={row[col]}
-                            onChange={(e) => handleSourcingChange(index, col, e.target.value)}
-                          >
-                            <option value="">Select Category</option>
-                            {categories.map((category) => (
-                              <option
-                                key={category.id}
-                                value={category.id}
-                              >
-                                {category.name}
-                              </option>
-                            ))}
-                          </select>
-                        ) : (
-                          <input
-                            type={
-                              col.includes("Year") ||
-                                col.includes("Benefit") ||
-                                col.includes("Rate")
-                                ? "number"
-                                : "text"
-                            }
-                            className="form-control"
-                            style={{
-                              width: "100%",
-                              height: "36px",
-                              textAlign: "center",
-                            }}
-                            value={row[col]}
-                            onChange={(e) => handleSourcingChange(index, col, e.target.value)}
-                          />
-                        )}
-
-                      </td>
-                    ))}
-                    <td style={{ textAlign: 'center', verticalAlign: 'middle', whiteSpace: 'nowrap' }}>
-                      <button
-                        type="button"
-                        className="btn btn-danger btn-sm"
-                        onClick={() => removeSourcingRow(index)}
-                      >
-                        X
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-          <div className="d-flex flex-column flex-md-row gap-2 mt-3">
-            <button
-              type="button"
-              className="btn flex-fill"
-              style={{ backgroundColor: "#578E7E", border: "none", color: "white" }}
-              onClick={addSourcingRow}
-            >
-              Add Row
-            </button>
-          </div>
-        </div>
 
         {/* Submit Button */}
         <div className="d-flex justify-content-center mb-5 mt-4">

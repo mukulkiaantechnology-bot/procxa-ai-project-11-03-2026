@@ -239,6 +239,29 @@ const delete_department = async (req, res) => {
       });
     }
 
+    // 1. Nullify references in linked tables to avoid deletion block (Foreign Key Constraints)
+    
+    // Contracts
+    await db.contract.update({ departmentId: null }, { where: { departmentId: id } });
+
+    // Intake Requests
+    await db.intake_request.update({ requesterDepartmentId: null }, { where: { requesterDepartmentId: id } });
+
+    // Transactions
+    await db.transaction.update({ departmentId: null }, { where: { departmentId: id } });
+
+    // Suppliers
+    await db.supplier.update({ departmentId: null }, { where: { departmentId: id } });
+
+    // Intake Request Approvers (Note: userId field points to department id in this system)
+    await db.intake_request_approvers.update({ userId: null }, { where: { userId: id, userType: 'department' } });
+
+    // SOW Consolidation (requestedTeamDepartmentId)
+    await db.service_sow_consolidation.update({ requestedTeamDepartmentId: null }, { where: { requestedTeamDepartmentId: id } });
+
+    // Client Licenses
+    await db.client_license.update({ department_id: null }, { where: { department_id: id } });
+
     await department.destroy();
 
     res.status(200).json({

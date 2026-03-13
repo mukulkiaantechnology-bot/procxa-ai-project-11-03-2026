@@ -20,7 +20,7 @@ module.exports = (sequelize, DataTypes) => {
         },
         departmentId: {
             type: DataTypes.BIGINT,
-            allowNull: false,
+            allowNull: true,
         },
         startDate: {
             type: DataTypes.DATE,

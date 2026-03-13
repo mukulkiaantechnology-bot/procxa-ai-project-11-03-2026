@@ -35,10 +35,17 @@ function DepartmentList() {
   const handleDelete = async (id) => {
     if (window.confirm("Are you sure you want to delete this department?")) {
       try {
-        await del(`${endpoints.deleteDepartment}/${id}`);
-        setDepartments(departments.filter((dept) => dept.id !== id));
+        const response = await del(`${endpoints.deleteDepartment}/${id}`);
+        if (response.status) {
+          setDepartments(departments.filter((dept) => dept.id !== id));
+          alert("Department deleted successfully");
+        } else {
+          alert(response.message || "Failed to delete department");
+        }
       } catch (err) {
+        console.error("Delete error:", err);
         setError("Failed to delete department");
+        alert("An error occurred while deleting the department");
       }
     }
   };

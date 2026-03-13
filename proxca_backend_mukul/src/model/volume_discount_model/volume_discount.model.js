@@ -17,7 +17,7 @@ module.exports = (sequelize, DataTypes) => {
   
         categoryId: {
           type: DataTypes.BIGINT,
-          allowNull: false,
+          allowNull: true,
         },
   
         historicalVolumePurchased: {

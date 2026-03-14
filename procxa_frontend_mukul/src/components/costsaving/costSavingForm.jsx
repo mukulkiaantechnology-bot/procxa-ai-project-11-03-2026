@@ -29,7 +29,6 @@ const CostSavingForm = () => {
   const [formData, setFormData] = useState({
     supplierName: "",
     depreciationScheduleYears: "",
-    group: "",
     category: "",
     reportingYear: "",
     currency: "USD",
@@ -228,7 +227,6 @@ const CostSavingForm = () => {
     const requiredFields = [
       "supplierName",
       "depreciationScheduleYears",
-      "group",
       "category",
       "reportingYear",
       "currency",
@@ -266,7 +264,6 @@ const CostSavingForm = () => {
       setFormData({
         supplierName: "",
         depreciationScheduleYears: "",
-        group: "",
         category: "",
         reportingYear: "",
         currency: "USD",
@@ -364,7 +361,6 @@ const CostSavingForm = () => {
                ...formData,
                supplierName: data.supplierName || "",
                depreciationScheduleYears: data.depreciationScheduleYears || "",
-               group: data.group || "",
                category: data.category || "",
                reportingYear: data.reportingYear || "",
                currency: data.currency || "USD",
@@ -447,8 +443,6 @@ const CostSavingForm = () => {
               name: "depreciationScheduleYears",
               type: "number",
             },
-            { label: "Group", name: "group" },
-
             { label: "Reporting Year", name: "reportingYear", type: "number" },
           ].map(({ label, name, type = "text" }) => (
             <div className="mb-3 col-12 col-md-6 col-lg-4" key={name}>

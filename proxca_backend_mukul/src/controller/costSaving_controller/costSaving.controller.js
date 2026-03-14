@@ -32,7 +32,7 @@ exports.createCostSaving = async (req, res) => {
     const newEntry = await CostSaving.create({
       supplierName,
       depreciationScheduleYears,
-      group,
+      group: "N/A", // Hardcoded default to bypass DB notNull constraint since field is removed from UI
       category,
       reportingYear,
       currency,

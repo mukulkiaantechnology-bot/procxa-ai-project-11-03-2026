@@ -174,7 +174,6 @@ const CostsavingDashboard = () => {
                 <tr>
                   <th>ID</th>
                   <th>Type</th>
-                  <th>Group</th>
                   <th>Current Price</th>
                   <th>Proposed Price</th>
                   <th>Est. Savings</th>
@@ -197,7 +196,6 @@ const CostsavingDashboard = () => {
                       <tr key={saving.id}>
                         <td className="fw-semibold text-secondary">#{saving.id}</td>
                         <td>{saving.typeOfCostSaving || "-"}</td>
-                        <td>{saving.group || "-"}</td>
                         <td>{saving.currentPrice ? `$${parseFloat(saving.currentPrice).toFixed(2)}` : "-"}</td>
                         <td>{saving.proposedPrice ? `$${parseFloat(saving.proposedPrice).toFixed(2)}` : "-"}</td>
                         <td className={`fw-bold ${(() => {
@@ -260,7 +258,6 @@ const CostsavingDashboard = () => {
               <div className="col-md-6 border-bottom pb-2"><strong>Type:</strong> {selectedSaving.typeOfCostSaving || "-"}</div>
               <div className="col-md-6 border-bottom pb-2"><strong>Supplier Name ID:</strong> {selectedSaving.supplierName || "-"}</div>
               <div className="col-md-6 border-bottom pb-2"><strong>Depreciation Years:</strong> {selectedSaving.depreciationScheduleYears || "-"}</div>
-              <div className="col-md-6 border-bottom pb-2"><strong>Group:</strong> {selectedSaving.group || "-"}</div>
               <div className="col-md-6 border-bottom pb-2"><strong>Category ID:</strong> {selectedSaving.category || "-"}</div>
               <div className="col-md-6 border-bottom pb-2"><strong>Reporting Year:</strong> {selectedSaving.reportingYear || "-"}</div>
               <div className="col-md-6 border-bottom pb-2"><strong>Currency:</strong> {selectedSaving.currency || "-"}</div>

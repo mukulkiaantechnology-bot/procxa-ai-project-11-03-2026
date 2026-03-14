@@ -419,7 +419,7 @@ const Dashboard = () => {
           <thead className="table-light">
             <tr>
               <th>ID</th>
-              <th>Project Name</th>
+              <th>Requester Name</th>
               <th>Department</th>
               <th>Supplier</th>
               <th>Type</th>

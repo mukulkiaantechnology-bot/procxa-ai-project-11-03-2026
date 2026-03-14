@@ -178,7 +178,7 @@ const ApprovalWork = () => {
                   <div className="card-body p-3">
                     <div className="d-flex justify-content-between align-items-start mb-2">
                       <h6 className="card-title mb-0 fw-bold" style={{ fontSize: "clamp(0.9rem, 2.5vw, 1rem)" }}>
-                        Request ID: {item.id}
+                        Requester Name: {item.requesterName || "N/A"}
                       </h6>
                       <span
                         role="button"
@@ -301,7 +301,7 @@ const ApprovalWork = () => {
             <table className="table table-bordered text-center align-middle table-striped mb-0">
               <thead className="table-light">
                 <tr>
-                  <th style={{ fontSize: "clamp(0.875rem, 1.5vw, 1rem)", whiteSpace: "nowrap" }}>Request ID</th>
+                  <th style={{ fontSize: "clamp(0.875rem, 1.5vw, 1rem)", whiteSpace: "nowrap" }}>Requester Name</th>
                   <th style={{ fontSize: "clamp(0.875rem, 1.5vw, 1rem)" }}>Requester Department</th>
                   <th style={{ fontSize: "clamp(0.875rem, 1.5vw, 1rem)" }}>Supplier Name</th>
                   <th style={{ fontSize: "clamp(0.875rem, 1.5vw, 1rem)", whiteSpace: "nowrap" }}>Request Date</th>
@@ -317,7 +317,7 @@ const ApprovalWork = () => {
 
                   return (
                     <tr key={item.id}>
-                      <td style={{ fontSize: "clamp(0.875rem, 1.5vw, 1rem)", wordBreak: "break-word" }}>{item.id}</td>
+                      <td style={{ fontSize: "clamp(0.875rem, 1.5vw, 1rem)", wordBreak: "break-word" }}>{item.requesterName || "N/A"}</td>
                       <td style={{ fontSize: "clamp(0.875rem, 1.5vw, 1rem)", wordBreak: "break-word" }}>{item.department?.name || "N/A"}</td>
                       <td style={{ fontSize: "clamp(0.875rem, 1.5vw, 1rem)", wordBreak: "break-word" }}>{item.supplierName}</td>
                       <td style={{ fontSize: "clamp(0.875rem, 1.5vw, 1rem)", whiteSpace: "nowrap" }}>{new Date(item.createdAt).toLocaleDateString()}</td>

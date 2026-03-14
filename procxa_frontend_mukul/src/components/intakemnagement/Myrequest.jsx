@@ -298,7 +298,7 @@ const Myrequest = () => {
             <thead className="table-light">
               <tr>
                 <th>Request ID</th>
-                <th>Requester</th>
+                <th>Requester Name</th>
                 <th>Department</th>
                 <th>Status</th>
                 <th>Supplier Assigned</th>

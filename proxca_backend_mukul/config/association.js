@@ -344,6 +344,16 @@ module.exports = (db) => {
         foreignKey: "supplierId",
         as: "performance",
     });
+
+    // ================ costSaving association ================
+    db.costSaving.belongsTo(db.intake_request, {
+        foreignKey: "intakeRequest",
+        as: "intakeRequestDetails",
+    });
+    db.intake_request.hasMany(db.costSaving, {
+        foreignKey: "intakeRequest",
+        as: "costSavings",
+    });
 };
 
 

@@ -28,7 +28,8 @@ const CostSavingForm = () => {
 
   const [formData, setFormData] = useState({
     supplierName: "",
-    depreciationScheduleYears: "",
+    requesterName: "",
+    departmentId: "",
     category: "",
     reportingYear: "",
     currency: "USD",
@@ -45,10 +46,12 @@ const CostSavingForm = () => {
     forecastVolumesMultiYear: generateYearData(),
     historicalUnitPrices: generateYearData(),
     additionalColumns: [],
-    sourcingBenefits: {}, // Added to match model
+    sourcingBenefits: {},
     intakeRequest: "",
   });
 
+  const [requesters, setRequesters] = useState([]);
+  const [departments, setDepartments] = useState([]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -62,13 +65,11 @@ const CostSavingForm = () => {
       
       const newForecastVolumes = { ...prev.forecastVolumes };
       
-      // Update the current year
       const updatedYearData = {
         ...(newForecastVolumes[year] || {}),
         [item]: value,
       };
 
-      // Auto-calculate Annualized Benefits: Baseline - New Cost
       if (item === "Baseline" || item === "New Cost") {
         const baseline = parseFloat(updatedYearData["Baseline"]) || 0;
         const newCost = parseFloat(updatedYearData["New Cost"]) || 0;
@@ -77,15 +78,12 @@ const CostSavingForm = () => {
       
       newForecastVolumes[year] = updatedYearData;
 
-      // Auto-fill future years
       for (let i = yearIndex + 1; i < years.length; i++) {
         const futureYear = years[i];
         newForecastVolumes[futureYear] = {
           ...newForecastVolumes[futureYear],
           [item]: value,
         };
-        
-        // Re-calculate future year benefits
         const baseline = parseFloat(newForecastVolumes[futureYear]["Baseline"]) || 0;
         const newCost = parseFloat(newForecastVolumes[futureYear]["New Cost"]) || 0;
         newForecastVolumes[futureYear]["Annualized Benefits"] = (baseline - newCost).toFixed(2);
@@ -102,10 +100,7 @@ const CostSavingForm = () => {
     setFormData((prev) => {
       const years = Object.keys(prev.historicalUnitPrices).sort();
       const yearIndex = years.indexOf(year);
-      
       const newHistoricalUnitPrices = { ...prev.historicalUnitPrices };
-      
-      // Update current and future years
       for (let i = yearIndex; i < years.length; i++) {
         const targetYear = years[i];
         newHistoricalUnitPrices[targetYear] = {
@@ -113,7 +108,6 @@ const CostSavingForm = () => {
           [col]: value,
         };
       }
-      
       return {
         ...prev,
         historicalUnitPrices: newHistoricalUnitPrices,
@@ -159,20 +153,15 @@ const CostSavingForm = () => {
     }));
   };
 
-
   const handleRemoveRow = (rowIndex) => {
     const years = Object.keys(formData.forecastVolumes);
     if (rowIndex < 0 || rowIndex >= years.length) return;
-
     const yearToRemove = years[rowIndex];
-
     setFormData((prev) => {
       const newForecast = { ...prev.forecastVolumes };
       const newHistorical = { ...prev.historicalUnitPrices };
-
       delete newForecast[yearToRemove];
       delete newHistorical[yearToRemove];
-
       return {
         ...prev,
         forecastVolumes: newForecast,
@@ -185,34 +174,24 @@ const CostSavingForm = () => {
     const staticCols = ["Baseline", "New Cost", "Annualized Benefits"];
     const dynamicBaseCols = ["item1", "item2", "item3"];
     const allColumns = [...staticCols, ...dynamicBaseCols, ...formData.additionalColumns];
-
     const columnToRemove = allColumns[colIndex];
     if (!columnToRemove) return;
-
     const updatedForecastVolumes = {};
     for (const [year, data] of Object.entries(formData.forecastVolumes)) {
       const newData = { ...data };
       delete newData[columnToRemove];
       updatedForecastVolumes[year] = newData;
     }
-
     const updatedHistoricalUnitPrices = {};
     for (const [year, data] of Object.entries(formData.historicalUnitPrices || {})) {
       const newData = { ...data };
       delete newData[columnToRemove];
       updatedHistoricalUnitPrices[year] = newData;
     }
-
     let updatedAdditionalColumns = [...formData.additionalColumns];
-    if (
-      columnToRemove.startsWith("item") &&
-      !dynamicBaseCols.includes(columnToRemove)
-    ) {
-      updatedAdditionalColumns = updatedAdditionalColumns.filter(
-        (col) => col !== columnToRemove
-      );
+    if (columnToRemove.startsWith("item") && !dynamicBaseCols.includes(columnToRemove)) {
+      updatedAdditionalColumns = updatedAdditionalColumns.filter((col) => col !== columnToRemove);
     }
-
     setFormData((prev) => ({
       ...prev,
       forecastVolumes: updatedForecastVolumes,
@@ -226,7 +205,8 @@ const CostSavingForm = () => {
 
     const requiredFields = [
       "supplierName",
-      "depreciationScheduleYears",
+      "requesterName",
+      "departmentId",
       "category",
       "reportingYear",
       "currency",
@@ -260,10 +240,10 @@ const CostSavingForm = () => {
       alert(response.message || "Form submitted successfully!");
       navigate("/costsaving");
       
-      // Reset is optional if we are navigating away, but keeping it to avoid any issue
       setFormData({
         supplierName: "",
-        depreciationScheduleYears: "",
+        requesterName: "",
+        departmentId: "",
         category: "",
         reportingYear: "",
         currency: "USD",
@@ -290,46 +270,37 @@ const CostSavingForm = () => {
   };
 
 
-
   useEffect(() => {
-    const fetchIntakeRequests = async () => {
+    const fetchData = async () => {
       try {
-        const res = await get(endpoints.getIntakeRequest);
-        if (res.status) {
-          setIntakeRequests(res.data);
-        }
-      } catch (error) {
-        console.error("Error fetching intake requests:", error);
-      }
-    };
+        const [intakeRes, supplierRes, categoryRes, deptRes, adminRes] = await Promise.all([
+          get(endpoints.getIntakeRequest),
+          get(endpoints.getSuppliers),
+          get(endpoints.getCategory),
+          get(endpoints.getAllDepartments),
+          get(endpoints.getAllAdmins)
+        ]);
 
-    const fetchSuppliers = async () => {
-      try {
-        const res = await get(endpoints.getSuppliers);
-        if (res.status) {
-          setSuppliers(res.data);
-        }
-      } catch (error) {
-        console.error("Error fetching suppliers:", error);
-      }
-    };
-
-
-    const fetchCategories = async () => {
-      try {
-        const response = await get(endpoints.getCategory);
-        if (response) {
-          // Handle both response.categories and response.data
-          const cats = response.categories || response.data || [];
+        if (intakeRes.status) setIntakeRequests(intakeRes.data);
+        if (supplierRes.status) setSuppliers(supplierRes.data);
+        
+        if (categoryRes) {
+          const cats = categoryRes.categories || categoryRes.data || [];
           setCategories(cats);
         }
+
+        if (deptRes.status || deptRes.data) {
+          setDepartments(deptRes.data || deptRes);
+        }
+
+        if (adminRes.status || adminRes.data) {
+          setRequesters(adminRes.data || adminRes);
+        }
       } catch (error) {
-        setMessage({ type: "error", message: error.message });
+        console.error("Error fetching form data:", error);
       }
     };
-    fetchCategories();
-    fetchIntakeRequests();
-    fetchSuppliers();
+    fetchData();
   }, []);
 
   useEffect(() => {
@@ -436,29 +407,53 @@ const CostSavingForm = () => {
             </select>
           </div>
 
-          {[
+          <div className="mb-3 col-12 col-md-6 col-lg-4">
+            <label htmlFor="requesterName" className="form-label">Requester Name</label>
+            <select
+              id="requesterName"
+              name="requesterName"
+              className="form-select"
+              value={formData.requesterName || ""}
+              onChange={handleChange}
+            >
+              <option value="">Select Requester</option>
+              {requesters.map((req) => (
+                <option key={req.id} value={req.first_name}>
+                  {req.first_name}
+                </option>
+              ))}
+            </select>
+          </div>
 
-            {
-              label: "Depreciation Schedule Years",
-              name: "depreciationScheduleYears",
-              type: "number",
-            },
-            { label: "Reporting Year", name: "reportingYear", type: "number" },
-          ].map(({ label, name, type = "text" }) => (
-            <div className="mb-3 col-12 col-md-6 col-lg-4" key={name}>
-              <label htmlFor={name} className="form-label">
-                {label}
-              </label>
-              <input
-                type={type}
-                id={name}
-                name={name}
-                className="form-control"
-                value={formData[name]}
-                onChange={handleChange}
-              />
-            </div>
-          ))}
+          <div className="mb-3 col-12 col-md-6 col-lg-4">
+            <label htmlFor="departmentId" className="form-label">Department</label>
+            <select
+              id="departmentId"
+              name="departmentId"
+              className="form-select"
+              value={formData.departmentId || ""}
+              onChange={handleChange}
+            >
+              <option value="">Select Department</option>
+              {departments.map((dept) => (
+                <option key={dept.id} value={dept.id}>
+                  {dept.name}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div className="mb-3 col-12 col-md-6 col-lg-4">
+            <label htmlFor="reportingYear" className="form-label">Reporting Year</label>
+            <input
+              type="number"
+              id="reportingYear"
+              name="reportingYear"
+              className="form-control"
+              value={formData.reportingYear}
+              onChange={handleChange}
+            />
+          </div>
 
           {/* <div className="mb-3 col-12 col-md-6 col-lg-4">
               <label htmlFor="category" className="form-label">
@@ -726,7 +721,11 @@ const CostSavingForm = () => {
                   {staticColumns.map((col) => (
                     <th
                       key={col}
-                      style={{ textAlign: 'center', verticalAlign: 'middle' }}
+                      style={{ 
+                        textAlign: 'center', 
+                        verticalAlign: 'middle',
+                        width: (col === "Baseline" || col === "New Cost") ? '200px' : '150px'
+                      }}
                     >
                       {col}
                     </th>

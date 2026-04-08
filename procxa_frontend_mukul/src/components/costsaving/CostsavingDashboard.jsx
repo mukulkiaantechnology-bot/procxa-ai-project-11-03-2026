@@ -11,20 +11,73 @@ const CostsavingDashboard = () => {
   const [costSavings, setCostSavings] = useState([]);
   const [loading, setLoading] = useState(true);
   
+  // Filter state
+  const [filters, setFilters] = useState({
+    category: "",
+    departmentId: "",
+    supplierName: "",
+    signerId: "",
+    startDate: "",
+    endDate: "",
+    reportingYear: "",
+    reportingMonth: "",
+    minAmount: "",
+    maxAmount: ""
+  });
+
+  const [options, setOptions] = useState({
+    categories: [],
+    departments: [],
+    suppliers: [],
+    approvers: []
+  });
+
   // View Modal state
   const [showViewModal, setShowViewModal] = useState(false);
   const [selectedSaving, setSelectedSaving] = useState(null);
 
-
+  useEffect(() => {
+    fetchOptions();
+  }, []);
 
   useEffect(() => {
     fetchCostSavings();
-  }, []);
+  }, [filters]);
+
+  const fetchOptions = async () => {
+    try {
+      const [cats, depts, sups] = await Promise.all([
+        get(endpoints.getCategory),
+        get(endpoints.getAllDepartments),
+        get(endpoints.getSuppliers)
+      ]);
+
+      // Extract arrays based on known response structures
+      const categoryList = cats?.categories || cats?.data || (Array.isArray(cats) ? cats : []);
+      const departmentList = depts?.data || depts?.departments || (Array.isArray(depts) ? depts : []);
+      const supplierList = sups?.data || sups?.suppliers || (Array.isArray(sups) ? sups : []);
+
+      setOptions({
+        categories: Array.isArray(categoryList) ? categoryList : [],
+        departments: Array.isArray(departmentList) ? departmentList : [],
+        suppliers: Array.isArray(supplierList) ? supplierList : [],
+        approvers: [] // Endpoint for all users/approvers needed if signerId is to be populated
+      });
+    } catch (error) {
+      console.error("Error fetching filter options:", error);
+    }
+  };
 
   const fetchCostSavings = async () => {
     try {
       setLoading(true);
-      const res = await get(endpoints.getAllCostSavings);
+      // Construct query string from filters
+      const queryParams = new URLSearchParams();
+      Object.keys(filters).forEach(key => {
+        if (filters[key]) queryParams.append(key, filters[key]);
+      });
+
+      const res = await get(`${endpoints.getAllCostSavings}?${queryParams.toString()}`);
       if (res && res.length > 0) {
         setCostSavings(res);
       } else if (res && res.data) {
@@ -37,6 +90,26 @@ const CostsavingDashboard = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleFilterChange = (e) => {
+    const { name, value } = e.target;
+    setFilters(prev => ({ ...prev, [name]: value }));
+  };
+
+  const clearFilters = () => {
+    setFilters({
+      category: "",
+      departmentId: "",
+      supplierName: "",
+      signerId: "",
+      startDate: "",
+      endDate: "",
+      reportingYear: "",
+      reportingMonth: "",
+      minAmount: "",
+      maxAmount: ""
+    });
   };
 
   const handleView = (saving) => {
@@ -155,6 +228,99 @@ const CostsavingDashboard = () => {
                 <p className="mb-0" style={{ fontSize: "clamp(0.75rem, 2.2vw, 0.9rem)" }}>Active Programs</p>
               </div>
             </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Filters Section */}
+      <div className="card shadow-sm border-0 mb-4 p-3 bg-light">
+        <div className="d-flex justify-content-between align-items-center mb-3">
+          <h5 className="mb-0 fw-bold d-flex align-items-center">
+            <i className="fa-solid fa-filter me-2" style={{ color: "#578E7E" }} /> Filters
+          </h5>
+          <button className="btn btn-sm btn-outline-secondary" onClick={clearFilters}>
+            Clear Filters
+          </button>
+        </div>
+        <div className="row g-3">
+          <div className="col-12 col-md-3">
+            <label className="form-label small fw-bold">Category</label>
+            <select className="form-select" name="category" value={filters.category} onChange={handleFilterChange}>
+              <option value="">All Categories</option>
+              {options.categories.map(cat => (
+                <option key={cat.id} value={cat.name}>{cat.name}</option>
+              ))}
+            </select>
+          </div>
+
+          <div className="col-12 col-md-3">
+            <label className="form-label small fw-bold">Department</label>
+            <select className="form-select" name="departmentId" value={filters.departmentId} onChange={handleFilterChange}>
+              <option value="">All Departments</option>
+              {options.departments.map(dept => (
+                <option key={dept.id} value={dept.id}>{dept.name}</option>
+              ))}
+            </select>
+          </div>
+
+          <div className="col-12 col-md-3">
+            <label className="form-label small fw-bold">Supplier</label>
+            <input 
+              type="text" 
+              className="form-control" 
+              name="supplierName" 
+              placeholder="Search Supplier..." 
+              value={filters.supplierName} 
+              onChange={handleFilterChange} 
+            />
+          </div>
+
+          <div className="col-12 col-md-3">
+            <label className="form-label small fw-bold">Signing Authority</label>
+            <select className="form-select" name="signerId" value={filters.signerId} onChange={handleFilterChange}>
+              <option value="">All Approvers</option>
+              {/* Populate with approvers if available in future */}
+            </select>
+          </div>
+
+          <div className="col-12 col-md-3">
+            <label className="form-label small fw-bold">Start Date</label>
+            <input type="date" className="form-control" name="startDate" value={filters.startDate} onChange={handleFilterChange} />
+          </div>
+
+          <div className="col-12 col-md-3">
+            <label className="form-label small fw-bold">End Date</label>
+            <input type="date" className="form-control" name="endDate" value={filters.endDate} onChange={handleFilterChange} />
+          </div>
+
+          <div className="col-12 col-md-3">
+            <label className="form-label small fw-bold">Reporting Year</label>
+            <select className="form-select" name="reportingYear" value={filters.reportingYear} onChange={handleFilterChange}>
+              <option value="">All Years</option>
+              {[2023, 2024, 2025, 2026, 2027].map(year => (
+                <option key={year} value={year}>{year}</option>
+              ))}
+            </select>
+          </div>
+
+          <div className="col-12 col-md-3">
+            <label className="form-label small fw-bold">Reporting Month</label>
+            <select className="form-select" name="reportingMonth" value={filters.reportingMonth} onChange={handleFilterChange}>
+              <option value="">All Months</option>
+              {["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"].map(m => (
+                <option key={m} value={m}>{m}</option>
+              ))}
+            </select>
+          </div>
+
+          <div className="col-12 col-md-3">
+            <label className="form-label small fw-bold">Min Amount</label>
+            <input type="number" className="form-control" name="minAmount" placeholder="0" value={filters.minAmount} onChange={handleFilterChange} />
+          </div>
+
+          <div className="col-12 col-md-3">
+            <label className="form-label small fw-bold">Max Amount</label>
+            <input type="number" className="form-control" name="maxAmount" placeholder="Max" value={filters.maxAmount} onChange={handleFilterChange} />
           </div>
         </div>
       </div>

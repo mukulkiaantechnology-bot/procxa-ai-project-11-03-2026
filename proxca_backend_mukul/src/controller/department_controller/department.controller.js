@@ -447,6 +447,31 @@ const update_department_workflow_status = async (req, res) => {
         }, { transaction });
       }
 
+      // 4. Check if all approvers have approved or if any have rejected
+      const allApprovers = await db.intake_request_approvers.findAll({ 
+        where: { intakeRequestId }, 
+        transaction 
+      });
+
+      if (status === 'rejected') {
+        // If rejected by any department, mark the whole request as rejected
+        console.log(`[WORKFLOW_UPDATE] Request ${intakeRequestId} rejected by department ${targetDepartmentId}`);
+        await db.intake_request.update(
+          { status: 'rejected' },
+          { where: { id: intakeRequestId }, transaction }
+        );
+      } else if (status === 'approved') {
+        // Check if every single approver has approved
+        const areAllApproved = allApprovers.every(app => app.status === 'approved');
+        if (areAllApproved) {
+          console.log(`[WORKFLOW_UPDATE] All approvers approved. Marking IntakeRequest ${intakeRequestId} as approved.`);
+          await db.intake_request.update(
+            { status: 'approved' },
+            { where: { id: intakeRequestId }, transaction }
+          );
+        }
+      }
+
       await transaction.commit();
       res.status(200).json({
         status: true,

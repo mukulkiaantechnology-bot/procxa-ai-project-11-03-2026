@@ -288,9 +288,9 @@ const Dashboard = () => {
       </div>
 
       {/* Summary Cards */}
-      <div className="row text-center mb-4 mt-4 g-3">
+      <div className="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-xl-5 text-center mb-4 mt-4 g-3">
         {/* Total Requests */}
-        <div className="col-12 col-sm-6 col-lg-3">
+        <div className="col">
           <div className="card dashboardcard text-white fw-semibold h-100 d-flex justify-content-center" style={{ backgroundColor: "#ff6567" }}>
             <div className="content d-flex justify-content-start align-items-center p-3">
               <div className="icon">
@@ -298,29 +298,44 @@ const Dashboard = () => {
               </div>
               <div className="text ms-3 text-start">
                 <h2 className="card-title mb-0 fw-bold">{intakeRequests.length}</h2>
-                <p className="mb-0 opacity-75">Total Requests</p>
+                <p className="mb-0 opacity-75" style={{ fontSize: "0.9rem" }}>Total Requests</p>
               </div>
             </div>
           </div>
         </div>
 
         {/* Projects Active */}
-        <div className="col-12 col-sm-6 col-lg-3">
+        <div className="col">
+          <div className="card dashboardcard text-white fw-semibold h-100 d-flex justify-content-center" style={{ backgroundColor: "#0d6efd" }}>
+            <div className="content d-flex justify-content-start align-items-center p-3">
+              <div className="icon">
+                <i className="fa-solid fa-bolt rounded-circle p-3" style={{ backgroundColor: "#5f9bf6", fontSize: "1.5rem" }} />
+              </div>
+              <div className="text ms-3 text-start">
+                <h2 className="card-title mb-0 fw-bold">{dashboardData?.summary?.projectsActive || 0}</h2>
+                <p className="mb-0 opacity-75" style={{ fontSize: "0.9rem" }}>Projects Active</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Projects Pending */}
+        <div className="col">
           <div className="card dashboardcard text-white fw-semibold h-100 d-flex justify-content-center" style={{ backgroundColor: "#ff9318" }}>
             <div className="content d-flex justify-content-start align-items-center p-3">
               <div className="icon">
                 <i className="fa-solid fa-clock rounded-circle p-3" style={{ backgroundColor: "#fcc586", fontSize: "1.5rem" }} />
               </div>
               <div className="text ms-3 text-start">
-                <h2 className="card-title mb-0 fw-bold">{dashboardData?.summary?.projectsActive || 0}</h2>
-                <p className="mb-0 opacity-75">Projects Active</p>
+                <h2 className="card-title mb-0 fw-bold">{dashboardData?.summary?.projectsPending || 0}</h2>
+                <p className="mb-0 opacity-75" style={{ fontSize: "0.9rem" }}>Projects Pending</p>
               </div>
             </div>
           </div>
         </div>
 
         {/* Projects Completed */}
-        <div className="col-12 col-sm-6 col-lg-3">
+        <div className="col">
           <div className="card dashboardcard text-white fw-semibold h-100 d-flex justify-content-center" style={{ backgroundColor: "#39bf1b" }}>
             <div className="content d-flex justify-content-start align-items-center p-3">
               <div className="icon">
@@ -328,14 +343,14 @@ const Dashboard = () => {
               </div>
               <div className="text ms-3 text-start">
                 <h2 className="card-title mb-0 fw-bold">{dashboardData?.summary?.projectsCompleted || 0}</h2>
-                <p className="mb-0 opacity-75">Projects Completed</p>
+                <p className="mb-0 opacity-75" style={{ fontSize: "0.9rem" }}>Projects Completed</p>
               </div>
             </div>
           </div>
         </div>
 
         {/* Expiring Contracts */}
-        <div className="col-12 col-sm-6 col-lg-3">
+        <div className="col">
           <div className="card dashboardcard text-white fw-semibold h-100 d-flex justify-content-center" style={{ backgroundColor: "#624de3" }}>
             <div className="content d-flex justify-content-start align-items-center p-3">
               <div className="icon">
@@ -343,7 +358,7 @@ const Dashboard = () => {
               </div>
               <div className="text ms-3 text-start">
                 <h2 className="card-title mb-0 fw-bold">{dashboardData?.summary?.totalExpiringContracts || 0}</h2>
-                <p className="mb-0 opacity-75">Expiring Contracts</p>
+                <p className="mb-0 opacity-75" style={{ fontSize: "0.9rem" }}>Expiring Contracts</p>
               </div>
             </div>
           </div>
@@ -424,6 +439,7 @@ const Dashboard = () => {
               <th>Supplier</th>
               <th>Type</th>
               <th>Date</th>
+              <th>Status</th>
               <th>Action</th>
             </tr>
           </thead>
@@ -437,6 +453,16 @@ const Dashboard = () => {
                   <td>{request.supplierName || "Not Assigned"}</td>
                   <td>{request.requestType || "N/A"}</td>
                   <td>{request.createdAt ? new Date(request.createdAt).toLocaleDateString() : "N/A"}</td>
+                  <td>
+                    <span className={`badge ${
+                      request.status === 'approved' ? 'bg-success' : 
+                      request.status === 'rejected' ? 'bg-danger' : 
+                      request.status === 'pending' ? 'bg-warning' : 
+                      request.status === 'active' ? 'bg-primary' : 'bg-secondary'
+                    } text-capitalize`}>
+                      {request.status || 'pending'}
+                    </span>
+                  </td>
                   <td className="text-center align-middle">
                     <div className="d-flex justify-content-center gap-2">
                       <i

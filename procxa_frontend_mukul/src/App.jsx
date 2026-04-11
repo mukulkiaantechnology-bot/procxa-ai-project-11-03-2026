@@ -133,7 +133,7 @@ function App() {
           )}
           {/* sidebar end */}
           {/* right side  */}
-          <div className="right-side-content">
+          <div className={`right-side-content ${hideLayout ? "login-layout-reset" : ""}`}>
             <Routes>
               {/* login signup */}
               <Route path="/" element={<Login />} />

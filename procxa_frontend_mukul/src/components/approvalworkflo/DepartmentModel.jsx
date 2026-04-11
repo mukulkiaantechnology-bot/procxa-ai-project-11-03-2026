@@ -30,6 +30,10 @@ const DepartmentModal = ({
   if (!show || !department) return null;
 
   const handleApprove = async (overrideContractId = null) => {
+    // Guard: if called from button onClick, first arg is the click event — ignore it
+    if (overrideContractId && typeof overrideContractId !== 'string' && typeof overrideContractId !== 'number') {
+      overrideContractId = null;
+    }
     const isOverriding = overrideContractId !== null;
     if (!isOverriding) {
       const confirmApprove = window.confirm("Are you sure you want to approve this department?");

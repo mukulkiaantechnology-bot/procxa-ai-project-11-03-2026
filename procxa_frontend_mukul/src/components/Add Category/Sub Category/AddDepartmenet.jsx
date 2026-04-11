@@ -114,9 +114,8 @@ function AddDepartment() {
               required
             >
               <option value="">Select Type</option>
-              <option value="working">Working</option>
+              <option value="approvers">Approvers</option>
               <option value="procurement">Procurement</option>
-              <option value="supplier">Supplier</option>
               <option value="other">other</option>
 
             </select>

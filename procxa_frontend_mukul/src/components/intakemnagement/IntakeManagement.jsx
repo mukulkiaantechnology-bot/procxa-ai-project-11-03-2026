@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Modal, Button } from "react-bootstrap";
 import useApi from "../../hooks/useApi";
 import endpoints from "../../api/endPoints";
@@ -11,6 +11,7 @@ const IntakeManagement = () => {
     totalRequests: 0,
     pendingApprovals: 0,
     approvedRequests: 0,
+    activeRequests: 0,
     allRequests: [],
     pagination: { currentPage: 1, totalPages: 0, totalRecords: 0, limit: 7 },
   });
@@ -18,6 +19,9 @@ const IntakeManagement = () => {
 
   const [showModal, setShowModal] = useState(false);
   const [selectedRequest, setSelectedRequest] = useState(null);
+  
+  const [filterStatus, setFilterStatus] = useState("All Approvals");
+  const [searchTerm, setSearchTerm] = useState("");
 
   const handleIconClick = (request) => {
     navigate(`/editIntakeRequest/${request.id}`);
@@ -66,24 +70,38 @@ const IntakeManagement = () => {
   };
 
   useEffect(() => {
-    fetchDashboardData();
-  }, []);
+    fetchDashboardData(1, dashboardData.pagination.limit, filterStatus);
+  }, [filterStatus]);
 
-
-
-  const fetchDashboardData = async (page = 1, limit = 7) => {
+  const fetchDashboardData = async (page = 1, limit = 7, status = filterStatus, search = searchTerm) => {
     try {
-      const response = await get(`${endpoints.intakeDashboard}?page=${page}&limit=${limit}`);
+      let queryUrl = `${endpoints.intakeDashboard}?page=${page}&limit=${limit}`;
+      if (status && status !== 'All Approvals') queryUrl += `&status=${encodeURIComponent(status)}`;
+      if (search) queryUrl += `&searchTerm=${encodeURIComponent(search)}`;
+
+      const response = await get(queryUrl);
       setDashboardData({
         pendingApprovals: response.data.pendingApprovals,
         allRequests: response.data.allRequests,
         totalRequests: response.data.totalRequests,
         approvedRequests: response.data.approvedRequests,
+        activeRequests: response.data.activeRequests,
         pagination: response.data.pagination,
       });
     } catch (error) {
       console.error("Error fetching dashboard data:", error);
     }
+  };
+
+  const debounceRef = useRef(null);
+
+  const handleSearchInput = (e) => {
+    const value = e.target.value;
+    setSearchTerm(value);
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+    debounceRef.current = setTimeout(() => {
+      fetchDashboardData(1, dashboardData.pagination.limit, filterStatus, value);
+    }, 300);
   };
 
 
@@ -127,30 +145,15 @@ const IntakeManagement = () => {
             Centralize your procurement requests and track approvals seamlessly
           </p>
         </div>
-        <div className="dropdown mt-0 mt-md-0">
-          <button
-            className="btn dropdown-toggle fw-semibold px-3 text-white d-flex align-items-center"
-            type="button"
-            id="dropdownMenuButton1"
-            data-bs-toggle="dropdown"
-            aria-expanded="false"
+        <div className="mt-0 mt-md-0">
+          <Link
+            className="btn fw-semibold px-3 text-white d-flex align-items-center"
+            to="/intakenewreq"
             style={{ backgroundColor: "#578e7e", fontSize: "clamp(0.8rem, 2.3vw, 0.95rem)" }}
           >
-            <i className="fa-solid fa-book me-2" />
-            Requests
-          </button>
-          <ul className="dropdown-menu" aria-labelledby="dropdownMenuButton1">
-            <li>
-              <Link className="dropdown-item fw-semibold" to="/intakenewreq">
-                New Request
-              </Link>
-            </li>
-            <li>
-              <Link className="dropdown-item fw-semibold" to="/intakemyrequ">
-                My Requests
-              </Link>
-            </li>
-          </ul>
+            <i className="fa-solid fa-plus me-2" />
+            New Request
+          </Link>
         </div>
       </div>
 
@@ -182,7 +185,7 @@ const IntakeManagement = () => {
             </div>
 
             {/* Desktop Layout - Horizontal */}
-            <div className="content d-none d-md-flex justify-content-start align-items-center p-2 p-md-3">
+            <div className="content d-none d-md-flex justify-content-start align-items-center p-2">
               <div className="icon-wrapper flex-shrink-0">
                 <i
                   className="fa-regular fa-user rounded-circle p-2 p-md-3"
@@ -198,6 +201,52 @@ const IntakeManagement = () => {
               <div className="text ms-2 ms-md-3 flex-grow-1 text-start">
                 <h2 className="card-title mb-0 fw-bold" style={{ fontSize: "clamp(1.3rem, 3.5vw, 1.8rem)" }}>{dashboardData?.totalRequests || 0}</h2>
                 <p className="mb-0" style={{ fontSize: "clamp(0.75rem, 2.2vw, 0.9rem)" }}>Total Requests</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div className="col-12 col-sm-6 col-lg-3 mb-2">
+          <div
+            className="card portalcard status-active text-white fw-semibold h-100"
+            style={{ backgroundColor: "#0d6efd" }}
+          >
+            {/* Mobile Layout - Vertical */}
+            <div className="content d-flex d-md-none flex-column justify-content-center align-items-center p-3">
+              <div className="icon-wrapper mb-2">
+                <i
+                  className="fa-regular fa-user rounded-circle p-3"
+                  style={{
+                    backgroundColor: "#5f9bf6",
+                    fontSize: "clamp(1.5rem, 4vw, 2rem)",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center"
+                  }}
+                />
+              </div>
+              <div className="text text-center">
+                <h2 className="card-title mb-1 fw-bold" style={{ fontSize: "clamp(1.5rem, 4vw, 2rem)" }}>{dashboardData?.activeRequests || 0}</h2>
+                <p className="mb-0" style={{ fontSize: "clamp(0.75rem, 2.2vw, 0.9rem)" }}>Active</p>
+              </div>
+            </div>
+
+            {/* Desktop Layout - Horizontal */}
+            <div className="content d-none d-md-flex justify-content-start align-items-center p-2">
+              <div className="icon-wrapper flex-shrink-0">
+                <i
+                  className="fa-regular fa-user rounded-circle p-2 p-md-3"
+                  style={{
+                    backgroundColor: "#5f9bf6",
+                    fontSize: "clamp(1.3rem, 3.5vw, 1.8rem)",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center"
+                  }}
+                />
+              </div>
+              <div className="text ms-2 ms-md-3 flex-grow-1 text-start">
+                <h2 className="card-title mb-0 fw-bold" style={{ fontSize: "clamp(1.3rem, 3.5vw, 1.8rem)" }}>{dashboardData?.activeRequests || 0}</h2>
+                <p className="mb-0" style={{ fontSize: "clamp(0.75rem, 2.2vw, 0.9rem)" }}>Active</p>
               </div>
             </div>
           </div>
@@ -228,7 +277,7 @@ const IntakeManagement = () => {
             </div>
 
             {/* Desktop Layout - Horizontal */}
-            <div className="content d-none d-md-flex justify-content-start align-items-center p-2 p-md-3">
+            <div className="content d-none d-md-flex justify-content-start align-items-center p-2">
               <div className="icon-wrapper flex-shrink-0">
                 <i
                   className="fa-regular fa-user rounded-circle p-2 p-md-3"
@@ -274,7 +323,7 @@ const IntakeManagement = () => {
             </div>
 
             {/* Desktop Layout - Horizontal */}
-            <div className="content d-none d-md-flex justify-content-start align-items-center p-2 p-md-3">
+            <div className="content d-none d-md-flex justify-content-start align-items-center p-2">
               <div className="icon-wrapper flex-shrink-0">
                 <i
                   className="fa-regular fa-user rounded-circle p-2 p-md-3"
@@ -296,8 +345,34 @@ const IntakeManagement = () => {
         </div>
       </div>
 
-      {/* Recent Activity Table */}
-      <h4 className="fw-semibold border-bottom pb-1" style={{ fontSize: "clamp(0.9rem, 2.7vw, 1.1rem)" }}>Recent Activity</h4>
+      {/* Recent Activity Table and Filters */}
+      <div className="d-flex flex-column flex-md-row justify-content-between align-items-md-center border-bottom pb-2 mb-3">
+        <h4 className="fw-semibold mb-2 mb-md-0" style={{ fontSize: "clamp(0.9rem, 2.7vw, 1.1rem)" }}>Recent Activity</h4>
+        
+        <div className="d-flex flex-column flex-sm-row gap-2">
+          <input
+            className="form-control form-control-sm"
+            style={{ minWidth: "200px" }}
+            type="search"
+            placeholder="Search by ID, supplier, requester, dept, type..."
+            aria-label="Search"
+            value={searchTerm}
+            onChange={handleSearchInput}
+          />
+          
+          <select 
+            className="form-select form-select-sm w-auto" 
+            value={filterStatus}
+            onChange={(e) => setFilterStatus(e.target.value)}
+          >
+            <option value="All Approvals">All Approvals</option>
+            <option value="pending">Pending</option>
+            <option value="active">Active</option>
+            <option value="approved">Approved</option>
+            <option value="rejected">Rejected</option>
+          </select>
+        </div>
+      </div>
 
       {/* Mobile Card View */}
       <div className="d-block d-md-none">
@@ -307,10 +382,16 @@ const IntakeManagement = () => {
               <div className="card-body p-3">
                 <div className="d-flex justify-content-between align-items-start mb-2">
                   <h6 className="card-title mb-0 fw-bold text-truncate" style={{ fontSize: "clamp(0.8rem, 2.5vw, 0.95rem)" }}>
-                    Request ID: {request.id}
+                    Request ID: {request.id} <br/>
+                    <small className="text-primary fw-normal">({request.requestType})</small>
                   </h6>
-                  <span className="badge bg-primary flex-shrink-0 ms-2" style={{ fontSize: "clamp(0.7rem, 2vw, 0.8rem)" }}>
-                    {request.requestType}
+                  <span className={`badge ${
+                    request.status === 'approved' ? 'bg-success' : 
+                    request.status === 'rejected' ? 'bg-danger' : 
+                    request.status === 'pending' ? 'bg-warning' : 
+                    request.status === 'active' ? 'bg-primary' : 'bg-secondary'
+                  } flex-shrink-0 ms-2 text-capitalize`} style={{ fontSize: "clamp(0.7rem, 2vw, 0.8rem)" }}>
+                    {request.status || 'pending'}
                   </span>
                 </div>
 
@@ -394,6 +475,7 @@ const IntakeManagement = () => {
               <th>Department</th>
               <th>Request Type</th>
               <th>Submission Date</th>
+              <th>Status</th>
               <th>Action</th>
             </tr>
           </thead>
@@ -408,6 +490,16 @@ const IntakeManagement = () => {
                     <td>{request["department.name"] || request.department?.name || "N/A"}</td>
                     <td>{request.requestType}</td>
                     <td>{new Date(request.createdAt).toLocaleDateString()}</td>
+                    <td>
+                      <span className={`badge ${
+                        request.status === 'approved' ? 'bg-success' : 
+                        request.status === 'rejected' ? 'bg-danger' : 
+                        request.status === 'pending' ? 'bg-warning' : 
+                        request.status === 'active' ? 'bg-primary' : 'bg-secondary'
+                      } text-capitalize`}>
+                        {request.status || 'pending'}
+                      </span>
+                    </td>
                     <td className="text-center align-middle">
                       <div className="d-flex justify-content-center gap-2">
                         <i
@@ -674,23 +766,23 @@ const IntakeManagement = () => {
         
         @media (min-width: 577px) and (max-width: 768px) {
           .portalcard {
-            min-height: 120px;
+            min-height: 100px;
           }
           
           .portalcard .icon-wrapper {
-            width: 60px;
-            height: 60px;
+            width: 50px;
+            height: 50px;
           }
         }
         
         @media (min-width: 769px) {
           .portalcard {
-            min-height: 140px;
+            min-height: 90px;
           }
           
           .portalcard .icon-wrapper {
-            width: 70px;
-            height: 70px;
+            width: 50px;
+            height: 50px;
           }
         }
       `}</style>

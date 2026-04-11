@@ -10,7 +10,7 @@ const CostsavingDashboard = () => {
 
   const [costSavings, setCostSavings] = useState([]);
   const [loading, setLoading] = useState(true);
-  
+
   // Filter state
   const [filters, setFilters] = useState({
     category: "",
@@ -32,7 +32,7 @@ const CostsavingDashboard = () => {
     approvers: []
   });
 
-  // View Modal state
+  const [showFilters, setShowFilters] = useState(false);
   const [showViewModal, setShowViewModal] = useState(false);
   const [selectedSaving, setSelectedSaving] = useState(null);
 
@@ -138,13 +138,13 @@ const CostsavingDashboard = () => {
   // Calculate Metrics
   const totalRecords = costSavings.length;
   const totalSavingsAmount = costSavings.reduce((acc, curr) => {
-     const current = parseFloat(curr.currentPrice);
-     const proposed = parseFloat(curr.proposedPrice);
-     if (!isNaN(current) && !isNaN(proposed)) {
-       const saveAmt = current - proposed;
-       return acc + saveAmt;
-     }
-     return acc;
+    const current = parseFloat(curr.currentPrice);
+    const proposed = parseFloat(curr.proposedPrice);
+    if (!isNaN(current) && !isNaN(proposed)) {
+      const saveAmt = current - proposed;
+      return acc + saveAmt;
+    }
+    return acc;
   }, 0);
 
   return (
@@ -232,95 +232,97 @@ const CostsavingDashboard = () => {
         </div>
       </div>
 
-      {/* Filters Section */}
-      <div className="card shadow-sm border-0 mb-4 p-3 bg-light">
-        <div className="d-flex justify-content-between align-items-center mb-3">
-          <h5 className="mb-0 fw-bold d-flex align-items-center">
-            <i className="fa-solid fa-filter me-2" style={{ color: "#578E7E" }} /> Filters
-          </h5>
-          <button className="btn btn-sm btn-outline-secondary" onClick={clearFilters}>
-            Clear Filters
-          </button>
+      {/* 🔍 Premium Collapsible Filter Section */}
+      <div className="mb-4" style={{
+        borderRadius: "12px",
+        overflow: "hidden",
+        border: "1px solid rgba(87, 142, 126, 0.2)",
+        backgroundColor: "rgba(255, 255, 255, 0.8)",
+        backdropFilter: "blur(10px)",
+        boxShadow: "0 4px 15px rgba(0,0,0,0.05)"
+      }}>
+        <div
+          className="p-3 d-flex justify-content-between align-items-center cursor-pointer"
+          onClick={() => setShowFilters(!showFilters)}
+          style={{
+            backgroundColor: "rgba(87, 142, 126, 0.05)",
+            cursor: "pointer",
+            transition: "all 0.3s ease"
+          }}
+        >
+          <div className="d-flex align-items-center gap-2">
+            <i className="fa-solid fa-filter" style={{ color: "#578E7E" }}></i>
+            <span className="fw-semibold" style={{ color: "#578E7E" }}>Search & Filters</span>
+          </div>
+          <div className="d-flex align-items-center gap-3">
+            <button
+              className="btn btn-sm btn-link text-decoration-none p-0"
+              style={{ color: "#578E7E", fontSize: "0.85rem" }}
+              onClick={(e) => { e.stopPropagation(); clearFilters(); }}
+            >
+              Clear All
+            </button>
+            <i className={`fa-solid fa-chevron-${showFilters ? 'up' : 'down'}`} style={{ color: "#578E7E", fontSize: "0.8rem" }}></i>
+          </div>
         </div>
-        <div className="row g-3">
-          <div className="col-12 col-md-3">
-            <label className="form-label small fw-bold">Category</label>
-            <select className="form-select" name="category" value={filters.category} onChange={handleFilterChange}>
-              <option value="">All Categories</option>
-              {options.categories.map(cat => (
-                <option key={cat.id} value={cat.name}>{cat.name}</option>
-              ))}
-            </select>
-          </div>
 
-          <div className="col-12 col-md-3">
-            <label className="form-label small fw-bold">Department</label>
-            <select className="form-select" name="departmentId" value={filters.departmentId} onChange={handleFilterChange}>
-              <option value="">All Departments</option>
-              {options.departments.map(dept => (
-                <option key={dept.id} value={dept.id}>{dept.name}</option>
-              ))}
-            </select>
-          </div>
+        <div style={{
+          maxHeight: showFilters ? "1000px" : "0",
+          transition: "max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1)",
+          overflow: "hidden"
+        }}>
+          <div className="p-3 bg-white border-top">
+            <div className="row g-3">
+              <div className="col-12 col-md-3">
+                <label className="form-label small fw-bold text-muted">Category</label>
+                <select className="form-select shadow-none" name="category" value={filters.category} onChange={handleFilterChange}>
+                  <option value="">All Categories</option>
+                  {options.categories.map(cat => (
+                    <option key={cat.id} value={cat.id}>{cat.name}</option>
+                  ))}
+                </select>
+              </div>
 
-          <div className="col-12 col-md-3">
-            <label className="form-label small fw-bold">Supplier</label>
-            <input 
-              type="text" 
-              className="form-control" 
-              name="supplierName" 
-              placeholder="Search Supplier..." 
-              value={filters.supplierName} 
-              onChange={handleFilterChange} 
-            />
-          </div>
+              <div className="col-12 col-md-3">
+                <label className="form-label small fw-bold text-muted">Department</label>
+                <select className="form-select shadow-none" name="departmentId" value={filters.departmentId} onChange={handleFilterChange}>
+                  <option value="">All Departments</option>
+                  {options.departments.map(dept => (
+                    <option key={dept.id} value={dept.id}>{dept.name}</option>
+                  ))}
+                </select>
+              </div>
 
-          <div className="col-12 col-md-3">
-            <label className="form-label small fw-bold">Signing Authority</label>
-            <select className="form-select" name="signerId" value={filters.signerId} onChange={handleFilterChange}>
-              <option value="">All Approvers</option>
-              {/* Populate with approvers if available in future */}
-            </select>
-          </div>
+              <div className="col-12 col-md-3">
+                <label className="form-label small fw-bold text-muted">Supplier</label>
+                <select
+                  className="form-select shadow-none"
+                  name="supplierName"
+                  value={filters.supplierName}
+                  onChange={handleFilterChange}
+                >
+                  <option value="">All Suppliers</option>
+                  {options.suppliers.map(sup => (
+                    <option key={sup.id} value={sup.id}>{sup.name}</option>
+                  ))}
+                </select>
+              </div>
 
-          <div className="col-12 col-md-3">
-            <label className="form-label small fw-bold">Start Date</label>
-            <input type="date" className="form-control" name="startDate" value={filters.startDate} onChange={handleFilterChange} />
-          </div>
+              <div className="col-12 col-md-3">
+                <label className="form-label small fw-bold text-muted">Reporting Year</label>
+                <select className="form-select shadow-none" name="reportingYear" value={filters.reportingYear} onChange={handleFilterChange}>
+                  <option value="">All Years</option>
+                  {[2023, 2024, 2025, 2026, 2027].map(year => (
+                    <option key={year} value={year}>{year}</option>
+                  ))}
+                </select>
+              </div>
 
-          <div className="col-12 col-md-3">
-            <label className="form-label small fw-bold">End Date</label>
-            <input type="date" className="form-control" name="endDate" value={filters.endDate} onChange={handleFilterChange} />
-          </div>
-
-          <div className="col-12 col-md-3">
-            <label className="form-label small fw-bold">Reporting Year</label>
-            <select className="form-select" name="reportingYear" value={filters.reportingYear} onChange={handleFilterChange}>
-              <option value="">All Years</option>
-              {[2023, 2024, 2025, 2026, 2027].map(year => (
-                <option key={year} value={year}>{year}</option>
-              ))}
-            </select>
-          </div>
-
-          <div className="col-12 col-md-3">
-            <label className="form-label small fw-bold">Reporting Month</label>
-            <select className="form-select" name="reportingMonth" value={filters.reportingMonth} onChange={handleFilterChange}>
-              <option value="">All Months</option>
-              {["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"].map(m => (
-                <option key={m} value={m}>{m}</option>
-              ))}
-            </select>
-          </div>
-
-          <div className="col-12 col-md-3">
-            <label className="form-label small fw-bold">Min Amount</label>
-            <input type="number" className="form-control" name="minAmount" placeholder="0" value={filters.minAmount} onChange={handleFilterChange} />
-          </div>
-
-          <div className="col-12 col-md-3">
-            <label className="form-label small fw-bold">Max Amount</label>
-            <input type="number" className="form-control" name="maxAmount" placeholder="Max" value={filters.maxAmount} onChange={handleFilterChange} />
+              <div className="col-12 col-md-3">
+                <label className="form-label small fw-bold text-muted">Min Amount</label>
+                <input type="number" className="form-control shadow-none" name="minAmount" placeholder="0" value={filters.minAmount} onChange={handleFilterChange} />
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -339,7 +341,10 @@ const CostsavingDashboard = () => {
               <thead className="table-light">
                 <tr>
                   <th>ID</th>
-                  <th>Type</th>
+                  <th>Supplier Name</th>
+                  <th>Intake</th>
+                  <th>Requester</th>
+                  <th>Department</th>
                   <th>Current Price</th>
                   <th>Proposed Price</th>
                   <th>Est. Savings</th>
@@ -349,19 +354,27 @@ const CostsavingDashboard = () => {
               <tbody>
                 {loading ? (
                   <tr>
-                    <td colSpan="7" className="text-center py-4">Loading...</td>
+                    <td colSpan="9" className="text-center py-4">Loading...</td>
                   </tr>
                 ) : costSavings.length === 0 ? (
                   <tr>
-                    <td colSpan="7" className="text-center py-4 text-muted">No cost savings data available.</td>
+                    <td colSpan="9" className="text-center py-4 text-muted">No cost savings data available.</td>
                   </tr>
                 ) : (
                   costSavings.map((saving) => {
                     const estSave = parseFloat(saving.currentPrice || 0) - parseFloat(saving.proposedPrice || 0);
                     return (
                       <tr key={saving.id}>
-                        <td className="fw-semibold text-secondary">#{saving.id}</td>
-                        <td>{saving.typeOfCostSaving || "-"}</td>
+                        <td className="fw-semibold text-secondary">{saving.id}</td>
+                        <td className="small">{saving.supplierDetails?.name || saving.supplierName || "-"}</td>
+                        <td>
+                          <div className="d-flex flex-column">
+                            <span className="fw-bold">{saving.intakeRequestDetails?.id || saving.intakeRequest}</span>
+                            <span className="small text-muted">{saving.intakeRequestDetails?.requestType}</span>
+                          </div>
+                        </td>
+                        <td>{saving.intakeRequestDetails?.requesterName || "-"}</td>
+                        <td>{saving.departmentDetails?.name || "-"}</td>
                         <td>{saving.currentPrice ? `$${parseFloat(saving.currentPrice).toFixed(2)}` : "-"}</td>
                         <td>{saving.proposedPrice ? `$${parseFloat(saving.proposedPrice).toFixed(2)}` : "-"}</td>
                         <td className={`fw-bold ${(() => {
@@ -420,11 +433,20 @@ const CostsavingDashboard = () => {
         <Modal.Body>
           {selectedSaving && (
             <div className="row g-3">
-              <div className="col-md-6 border-bottom pb-2"><strong>ID:</strong> #{selectedSaving.id}</div>
+              <div className="col-md-6 border-bottom pb-2"><strong>ID:</strong> {selectedSaving.id}</div>
               <div className="col-md-6 border-bottom pb-2"><strong>Type:</strong> {selectedSaving.typeOfCostSaving || "-"}</div>
-              <div className="col-md-6 border-bottom pb-2"><strong>Supplier Name ID:</strong> {selectedSaving.supplierName || "-"}</div>
-              <div className="col-md-6 border-bottom pb-2"><strong>Depreciation Years:</strong> {selectedSaving.depreciationScheduleYears || "-"}</div>
-              <div className="col-md-6 border-bottom pb-2"><strong>Category ID:</strong> {selectedSaving.category || "-"}</div>
+              <div className="col-md-6 border-bottom pb-2">
+                <strong>Supplier Name:</strong> {(() => {
+                  const sup = options.suppliers.find(s => s.id.toString() === selectedSaving.supplierName?.toString());
+                  return sup ? sup.name : (selectedSaving.supplierDetails?.name || selectedSaving.supplierName || "-");
+                })()}
+              </div>
+              <div className="col-md-6 border-bottom pb-2">
+                <strong>Category:</strong> {(() => {
+                  const cat = options.categories.find(c => c.id?.toString() === selectedSaving.category?.toString() || c.name === selectedSaving.category);
+                  return cat ? cat.name : (selectedSaving.category || "-");
+                })()}
+              </div>
               <div className="col-md-6 border-bottom pb-2"><strong>Reporting Year:</strong> {selectedSaving.reportingYear || "-"}</div>
               <div className="col-md-6 border-bottom pb-2"><strong>Currency:</strong> {selectedSaving.currency || "-"}</div>
               <div className="col-md-6 border-bottom pb-2"><strong>Benefit Start Month:</strong> {selectedSaving.benefitStartMonth || "-"}</div>

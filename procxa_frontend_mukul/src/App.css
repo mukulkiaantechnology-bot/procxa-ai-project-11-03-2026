@@ -30,72 +30,6 @@ li {
   list-style-type: none;
 }
 
-/* login */
-main {
-  position: fixed;
-  top: 61px;
-  left: 535px;
-  width: 100vh;
-  /* height: 100vh; */
-}
-
-/* Mobile (320px - 480px) */
-@media (min-width: 320px) and (max-width: 480px) {
-  main {
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    width: 90vw;
-    max-width: 400px;
-    height: auto;
-  }
-}
-
-/* Tablet (481px - 1024px) */
-@media (min-width: 481px) and (max-width: 768px) {
-  main {
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    width: 80vw;
-    max-width: 450px;
-    height: auto;
-  }
-}
-
-@media (min-width: 769px) and (max-width: 1024px) {
-  main {
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    width: 500px;
-    height: auto;
-  }
-}
-
-/* Laptop (1025px - 1440px) */
-@media (min-width: 1025px) and (max-width: 1440px) {
-  main {
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    width: 500px;
-  }
-}
-
-/* Large screens (1440px+) */
-@media (min-width: 1441px) {
-  main {
-    position: fixed;
-    top: 61px;
-    left: 535px;
-    width: 100vh;
-  }
-}
 
 .login-container {
   background: transparent;
@@ -435,6 +369,14 @@ main {
 }
 
 /* right-side-content end */
+
+.login-layout-reset {
+  margin-top: 0 !important;
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+  padding-bottom: 0 !important;
+}
+
 /* dashbord */
 .dashboardcard {
   text-align: center;

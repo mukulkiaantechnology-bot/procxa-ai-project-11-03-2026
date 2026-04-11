@@ -185,6 +185,12 @@ const endpoints = {
     getAllInventoryItems: "/procxa/inventory/all",
     updateInventoryStock: "/procxa/inventory/update",
     getInventoryAlerts: "/procxa/inventory/alerts",
+
+    getContractsForNotification: "/procxa/getContractsForNotification",
+    saveContractPreference: "/procxa/saveContractPreference",
+    getContractPreference: "/procxa/getContractPreference",
+    getAllContractPreferences: "/procxa/getAllContractPreferences",
+    deleteContractPreference: "/procxa/deleteContractPreference",
 };
 
 export default endpoints;

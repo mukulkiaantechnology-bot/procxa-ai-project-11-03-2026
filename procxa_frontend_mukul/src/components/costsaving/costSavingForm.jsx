@@ -5,7 +5,7 @@ import useApi from "../../hooks/useApi";
 
 
 const initialYears = ["2025", "2026", "2027", "2028", "2029"];
-const defaultColumns = ["Baseline", "New Cost", "Annualized Benefits", "item1", "item2", "item3"];
+const defaultColumns = ["Baseline Price", "New Cost Price", "Annualized Benefits", "item1", "item2", "item3"];
 
 const generateYearData = () => {
   const yearData = {};
@@ -62,20 +62,20 @@ const CostSavingForm = () => {
     setFormData((prev) => {
       const years = Object.keys(prev.forecastVolumes).sort();
       const yearIndex = years.indexOf(year);
-      
+
       const newForecastVolumes = { ...prev.forecastVolumes };
-      
+
       const updatedYearData = {
         ...(newForecastVolumes[year] || {}),
         [item]: value,
       };
 
-      if (item === "Baseline" || item === "New Cost") {
-        const baseline = parseFloat(updatedYearData["Baseline"]) || 0;
-        const newCost = parseFloat(updatedYearData["New Cost"]) || 0;
-        updatedYearData["Annualized Benefits"] = (baseline - newCost).toFixed(2);
+      if (item === "Baseline Price" || item === "New Cost Price") {
+        const baselinePrice = parseFloat(updatedYearData["Baseline Price"]) || 0;
+        const newCostPrice = parseFloat(updatedYearData["New Cost Price"]) || 0;
+        updatedYearData["Annualized Benefits"] = (baselinePrice - newCostPrice).toFixed(2);
       }
-      
+
       newForecastVolumes[year] = updatedYearData;
 
       for (let i = yearIndex + 1; i < years.length; i++) {
@@ -84,9 +84,9 @@ const CostSavingForm = () => {
           ...newForecastVolumes[futureYear],
           [item]: value,
         };
-        const baseline = parseFloat(newForecastVolumes[futureYear]["Baseline"]) || 0;
-        const newCost = parseFloat(newForecastVolumes[futureYear]["New Cost"]) || 0;
-        newForecastVolumes[futureYear]["Annualized Benefits"] = (baseline - newCost).toFixed(2);
+        const baselinePrice = parseFloat(newForecastVolumes[futureYear]["Baseline Price"]) || 0;
+        const newCostPrice = parseFloat(newForecastVolumes[futureYear]["New Cost Price"]) || 0;
+        newForecastVolumes[futureYear]["Annualized Benefits"] = (baselinePrice - newCostPrice).toFixed(2);
       }
 
       return {
@@ -171,7 +171,7 @@ const CostSavingForm = () => {
   };
 
   const handleRemoveColumn = (colIndex) => {
-    const staticCols = ["Baseline", "New Cost", "Annualized Benefits"];
+    const staticCols = ["Baseline Price", "New Cost Price", "Annualized Benefits"];
     const dynamicBaseCols = ["item1", "item2", "item3"];
     const allColumns = [...staticCols, ...dynamicBaseCols, ...formData.additionalColumns];
     const columnToRemove = allColumns[colIndex];
@@ -239,7 +239,7 @@ const CostSavingForm = () => {
 
       alert(response.message || "Form submitted successfully!");
       navigate("/costsaving");
-      
+
       setFormData({
         supplierName: "",
         requesterName: "",
@@ -283,7 +283,7 @@ const CostSavingForm = () => {
 
         if (intakeRes.status) setIntakeRequests(intakeRes.data);
         if (supplierRes.status) setSuppliers(supplierRes.data);
-        
+
         if (categoryRes) {
           const cats = categoryRes.categories || categoryRes.data || [];
           setCategories(cats);
@@ -309,47 +309,46 @@ const CostSavingForm = () => {
         try {
           const res = await get(`${endpoints.getCostSavingById}/${editId}`);
           if (res) {
-             const data = res.data || res;
+            const data = res.data || res;
 
-             let parsedForecastVolumes = data.forecastVolumes;
-             if (typeof parsedForecastVolumes === "string") {
-               try { parsedForecastVolumes = JSON.parse(parsedForecastVolumes); } catch(e) {}
-             }
-             let parsedForecastMultiYear = data.forecastVolumesMultiYear;
-             if (typeof parsedForecastMultiYear === "string") {
-               try { parsedForecastMultiYear = JSON.parse(parsedForecastMultiYear); } catch(e) {}
-             }
-             let parsedHistoricalPrices = data.historicalUnitPrices;
-             if (typeof parsedHistoricalPrices === "string") {
-               try { parsedHistoricalPrices = JSON.parse(parsedHistoricalPrices); } catch(e) {}
-             }
-             let parsedAdditionalColumns = data.additionalColumns;
-             if (typeof parsedAdditionalColumns === "string") {
-               try { parsedAdditionalColumns = JSON.parse(parsedAdditionalColumns); } catch(e) {}
-             }
+            let parsedForecastVolumes = data.forecastVolumes;
+            if (typeof parsedForecastVolumes === "string") {
+              try { parsedForecastVolumes = JSON.parse(parsedForecastVolumes); } catch (e) { }
+            }
+            let parsedForecastMultiYear = data.forecastVolumesMultiYear;
+            if (typeof parsedForecastMultiYear === "string") {
+              try { parsedForecastMultiYear = JSON.parse(parsedForecastMultiYear); } catch (e) { }
+            }
+            let parsedHistoricalPrices = data.historicalUnitPrices;
+            if (typeof parsedHistoricalPrices === "string") {
+              try { parsedHistoricalPrices = JSON.parse(parsedHistoricalPrices); } catch (e) { }
+            }
+            let parsedAdditionalColumns = data.additionalColumns;
+            if (typeof parsedAdditionalColumns === "string") {
+              try { parsedAdditionalColumns = JSON.parse(parsedAdditionalColumns); } catch (e) { }
+            }
 
-             setFormData({
-               ...formData,
-               supplierName: data.supplierName || "",
-               depreciationScheduleYears: data.depreciationScheduleYears || "",
-               category: data.category || "",
-               reportingYear: data.reportingYear || "",
-               currency: data.currency || "USD",
-               benefitStartMonth: data.benefitStartMonth || "",
-               benefitEndMonth: data.benefitEndMonth || "",
-               typeOfCostSaving: data.typeOfCostSaving || "",
-               historicalUnitPrice: data.historicalUnitPrice || "",
-               negotiatedUnitPrice: data.negotiatedUnitPrice || "",
-               reductionPerUnit: data.reductionPerUnit || "",
-               currentPrice: data.currentPrice || "",
-               proposedPrice: data.proposedPrice || "",
-               notesDescription: data.notesDescription || "",
-               forecastVolumes: parsedForecastVolumes || generateYearData(),
-               forecastVolumesMultiYear: parsedForecastMultiYear || generateYearData(),
-               historicalUnitPrices: parsedHistoricalPrices || generateYearData(),
-               additionalColumns: Array.isArray(parsedAdditionalColumns) ? parsedAdditionalColumns : [],
-               intakeRequest: data.intakeRequest || ""
-             });
+            setFormData({
+              ...formData,
+              supplierName: data.supplierName || "",
+              category: data.category || "",
+              reportingYear: data.reportingYear || "",
+              currency: data.currency || "USD",
+              benefitStartMonth: data.benefitStartMonth || "",
+              benefitEndMonth: data.benefitEndMonth || "",
+              typeOfCostSaving: data.typeOfCostSaving || "",
+              historicalUnitPrice: data.historicalUnitPrice || "",
+              negotiatedUnitPrice: data.negotiatedUnitPrice || "",
+              reductionPerUnit: data.reductionPerUnit || "",
+              currentPrice: data.currentPrice || "",
+              proposedPrice: data.proposedPrice || "",
+              notesDescription: data.notesDescription || "",
+              forecastVolumes: parsedForecastVolumes || generateYearData(),
+              forecastVolumesMultiYear: parsedForecastMultiYear || generateYearData(),
+              historicalUnitPrices: parsedHistoricalPrices || generateYearData(),
+              additionalColumns: Array.isArray(parsedAdditionalColumns) ? parsedAdditionalColumns : [],
+              intakeRequest: data.intakeRequest || ""
+            });
           }
         } catch (error) {
           console.error("Error fetching cost saving details:", error);
@@ -359,7 +358,7 @@ const CostSavingForm = () => {
     }
   }, [editId]);
 
-  const staticColumns = ["Baseline", "New Cost", "Annualized Benefits"];
+  const staticColumns = ["Baseline Price", "New Cost Price", "Annualized Benefits"];
   const itemColumns = ["item1", "item2", "item3", ...formData.additionalColumns];
 
   return (
@@ -368,10 +367,10 @@ const CostSavingForm = () => {
         <h2 className="mb-0 text-md-start" style={{ color: "#578E7E", fontWeight: "600" }}>
           {editId ? "Update" : "Add"} Cost Saving
         </h2>
-        <button 
-          onClick={() => navigate("/costsaving")} 
+        <button
+          onClick={() => navigate("/costsaving")}
           className="btn text-white d-flex align-items-center gap-2"
-          style={{ 
+          style={{
             backgroundColor: "#578E7E",
             padding: "10px 20px",
             borderRadius: "5px",
@@ -417,9 +416,14 @@ const CostSavingForm = () => {
               onChange={handleChange}
             >
               <option value="">Select Requester</option>
-              {requesters.map((req) => (
+              {/* {requesters.map((req) => (
                 <option key={req.id} value={req.first_name}>
                   {req.first_name}
+                </option>
+              ))} */}
+              {intakeRequests.map((request) => (
+                <option key={request.id} value={request.requesterName}>
+                  {`${request.requesterName}`}
                 </option>
               ))}
             </select>
@@ -508,7 +512,7 @@ const CostSavingForm = () => {
               <option value="">Select Request</option>
               {intakeRequests.map((request) => (
                 <option key={request.id} value={request.id}>
-                  {`${request.id} - ${request.requestType} - ${request.department?.name}`}
+                  {`${request.id} - ${request.requesterName} -${request.requestType} - ${request.department?.name}`}
                 </option>
               ))}
             </select>
@@ -721,10 +725,10 @@ const CostSavingForm = () => {
                   {staticColumns.map((col) => (
                     <th
                       key={col}
-                      style={{ 
-                        textAlign: 'center', 
+                      style={{
+                        textAlign: 'center',
                         verticalAlign: 'middle',
-                        width: (col === "Baseline" || col === "New Cost") ? '200px' : '150px'
+                        width: (col === "Baseline Price" || col === "New Cost Price") ? '250px' : '150px'
                       }}
                     >
                       {col}
@@ -753,7 +757,7 @@ const CostSavingForm = () => {
                     </React.Fragment>
                   ))}
                   <th style={{ textAlign: 'center', verticalAlign: 'middle', whiteSpace: 'nowrap' }}>
-                    Total
+                    Total Saving
                   </th>
                   <th style={{ textAlign: 'center', verticalAlign: 'middle', whiteSpace: 'nowrap' }}>
                     Action
@@ -937,8 +941,8 @@ const CostSavingForm = () => {
           <button
             type="submit"
             className="btn px-5 py-3 text-white fw-bold shadow-lg rounded-pill"
-            style={{ 
-              backgroundColor: "#578E7E", 
+            style={{
+              backgroundColor: "#578E7E",
               fontSize: "1.1rem",
               transition: "all 0.3s ease",
               border: "none"

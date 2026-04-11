@@ -447,29 +447,31 @@ const update_department_workflow_status = async (req, res) => {
         }, { transaction });
       }
 
-      // 4. Check if all approvers have approved or if any have rejected
+      // 4. Recompute overall request status based on ALL approver statuses
       const allApprovers = await db.intake_request_approvers.findAll({ 
         where: { intakeRequestId }, 
         transaction 
       });
 
-      if (status === 'rejected') {
-        // If rejected by any department, mark the whole request as rejected
-        console.log(`[WORKFLOW_UPDATE] Request ${intakeRequestId} rejected by department ${targetDepartmentId}`);
+      if (allApprovers.length > 0) {
+        const hasRejected = allApprovers.some(app => app.status === 'rejected');
+        const areAllApproved = allApprovers.every(app => app.status === 'approved');
+
+        let newOverallStatus;
+        if (hasRejected) {
+          newOverallStatus = 'rejected';
+        } else if (areAllApproved) {
+          newOverallStatus = 'approved';
+        } else {
+          // Some pending, some approved — request is still active/in-progress
+          newOverallStatus = 'active';
+        }
+
+        console.log(`[WORKFLOW_UPDATE] Recomputed overall status for request ${intakeRequestId}: ${newOverallStatus}`);
         await db.intake_request.update(
-          { status: 'rejected' },
+          { status: newOverallStatus },
           { where: { id: intakeRequestId }, transaction }
         );
-      } else if (status === 'approved') {
-        // Check if every single approver has approved
-        const areAllApproved = allApprovers.every(app => app.status === 'approved');
-        if (areAllApproved) {
-          console.log(`[WORKFLOW_UPDATE] All approvers approved. Marking IntakeRequest ${intakeRequestId} as approved.`);
-          await db.intake_request.update(
-            { status: 'approved' },
-            { where: { id: intakeRequestId }, transaction }
-          );
-        }
       }
 
       await transaction.commit();

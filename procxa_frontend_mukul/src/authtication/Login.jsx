@@ -165,7 +165,7 @@ const Login = () => {
     <main>
       <div className="login-container">
         <h1 className="fw-bold" style={{ color: "#578e7e" }}>
-          Procxa-Ai
+          ProXaAI
         </h1>
         <p className="text-start text-secondary mb-4">
           {showSignUp ? "Create Account" : "Login"}
@@ -423,6 +423,7 @@ const Login = () => {
           justify-content: center;
           align-items: center;
           min-height: 100vh;
+          width: 100%;
           background: #f5f5f5;
           padding: 20px;
         }
@@ -434,7 +435,6 @@ const Login = () => {
           background: white;
           border-radius: 10px;
           box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-          margin: 150px auto;
         }
 
         .form-row {

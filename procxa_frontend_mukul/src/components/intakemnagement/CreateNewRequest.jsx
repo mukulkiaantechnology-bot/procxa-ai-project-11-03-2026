@@ -939,6 +939,7 @@ const CreateNewRequest = () => {
     try {
       const response = await post(endpoints.addIntakeRequest, payload);
       setMessage({ type: "success", text: response.message });
+      navigate("/intakemanagement");
     } catch (error) {
       console.error("Error submitting the request:", error);
       setMessage({ type: "error", text: error.message || "Failed to submit the request." });
@@ -1004,7 +1005,28 @@ const CreateNewRequest = () => {
 
   useEffect(() => {
     fetchCategoriesAndSubCategoriesAndDepartment();
+    fetchUserProfile();
   }, []);
+
+  const fetchUserProfile = async () => {
+    try {
+      const response = await get(endpoints.getProfile);
+      if (response && response.data) {
+        const user = response.data;
+        const userType = localStorage.getItem("userType");
+
+        setFormData((prev) => ({
+          ...prev,
+          requesterName: user.first_name || user.name || prev.requesterName,
+          requesterEmail: user.email_id || user.email || prev.requesterEmail,
+          // If the user is a department type, they should be their own department
+          requesterDepartmentId: userType === "department" ? user.id : prev.requesterDepartmentId,
+        }));
+      }
+    } catch (error) {
+      console.error("Failed to fetch user profile:", error);
+    }
+  };
   const supplierOptions = suppliers.map((supplier) => ({
     label: `${supplier.name} (${supplier.contactEmail})`,
     value: supplier.contactEmail,
@@ -1062,26 +1084,6 @@ const CreateNewRequest = () => {
 
         </div>
         <div className="d-flex justify-content-end gap-2">
-          <Link to="/intakemyrequ">
-            <button
-              style={{
-                width: '209px',
-                height: '49px',
-                border: 'none',
-                opacity: '1',
-                backgroundColor: '#578E7E',
-                color: 'white',
-                borderRadius: '5px',
-                fontSize: '16px',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: '8px',
-              }}
-            >
-              <i className="fa-solid fa-book"></i> My Request
-            </button>
-          </Link>
           <button
             style={{
               width: "120px",

@@ -16,6 +16,7 @@ function EditDepartment() {
     userType: "department",
     role: "",
     permissions: [],
+    type: "",
   });
 
   const [loading, setLoading] = useState(true);
@@ -70,6 +71,7 @@ function EditDepartment() {
           userType: "department",
           role: response.data.role || "",
           permissions: permissionIds,
+          type: response.data.type || "",
         });
       } else {
         setMessage({ type: "error", text: "Failed to load department details" });
@@ -205,6 +207,21 @@ function EditDepartment() {
                 value={formData.role}
                 onChange={handleChange}
               />
+            </div>
+            <div className="col-md-6">
+              <label className="form-label fw-semibold">Type</label>
+              <select
+                className="form-select"
+                name="type"
+                value={formData.type}
+                onChange={handleChange}
+                required
+              >
+                <option value="">Select Type</option>
+                <option value="approvers">Approvers</option>
+                <option value="procurement">Procurement</option>
+                <option value="other">other</option>
+              </select>
             </div>
 
             <div className="col-md-12">

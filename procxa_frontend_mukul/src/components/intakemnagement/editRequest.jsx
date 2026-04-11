@@ -86,7 +86,7 @@ const EditIntakeRequest = () => {
     try {
       const response = await patch(`${endpoints.updateRequest}/${id}`, payload);
       setMessage({ type: "success", text: response.message });
-      navigate("/intakemyrequ");
+      navigate("/intakemanagement");
     } catch (error) {
       console.error("Error updating the request:", error);
       setMessage({ type: "error", text: error.message || "Failed to update the request." });
@@ -199,9 +199,9 @@ const EditIntakeRequest = () => {
             >
               <option value="">Request Status</option>
               <option value="pending">Pending</option>
+              <option value="active">Active</option>
               <option value="approved">Approved</option>
               <option value="rejected">Rejected</option>
-              <option value="active">Active</option>
             </select>
           </div>
         </div>

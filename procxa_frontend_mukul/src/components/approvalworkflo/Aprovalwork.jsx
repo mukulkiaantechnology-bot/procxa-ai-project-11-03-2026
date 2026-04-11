@@ -21,6 +21,9 @@ const ApprovalWork = () => {
   const isAuthorizedUser = isAdminOrSuperAdmin || userType === "department";
   const [selectedRequestForFlow, setSelectedRequestForFlow] = useState(null);
   const [showFlowModal, setShowFlowModal] = useState(false);
+  const [summaryData, setSummaryData] = useState(null);
+  const [filterStatus, setFilterStatus] = useState(""); // "" for All
+  const [searchTerm, setSearchTerm] = useState("");
 
   const [pagination, setPagination] = useState({
     currentPage: 1,
@@ -29,11 +32,17 @@ const ApprovalWork = () => {
     limit: 7,
   });
 
-  const fetchApprovalRequests = async (page = 1) => {
+  const fetchApprovalRequests = async (page = 1, status = filterStatus) => {
     try {
       setLoading(true);
       const params = { page, limit: pagination.limit };
+      if (status) params.status = status;
+      
       const response = await get(endpoints.getAllNotPendingIntakeRequests, { params });
+      
+      if (response.summary) {
+        setSummaryData(response.summary);
+      }
 
       const data = Array.isArray(response?.data) ? response.data : [];
       setApprovalData(data);
@@ -137,9 +146,25 @@ const ApprovalWork = () => {
   };
 
   useEffect(() => {
-    fetchApprovalRequests();
+    fetchApprovalRequests(1, filterStatus);
     fetchContractsTemplate();
-  }, []);
+  }, [filterStatus]);
+
+  const onFilterChange = (e) => {
+    setFilterStatus(e.target.value);
+    setPagination(prev => ({ ...prev, currentPage: 1 }));
+  };
+
+  const filteredData = approvalData.filter((item) => {
+    if (!searchTerm.trim()) return true;
+    const term = searchTerm.toLowerCase();
+    return (
+      (item.requesterName || "").toLowerCase().includes(term) ||
+      (item.department?.name || "").toLowerCase().includes(term) ||
+      (item.supplierName || "").toLowerCase().includes(term) ||
+      (item.requestType || "").toLowerCase().includes(term)
+    );
+  });
   const handleViewClick = (item) => {
     if (item && item.id) {
        navigate(`/contractapproval/${item.id}`);
@@ -151,9 +176,136 @@ const ApprovalWork = () => {
     setShowFlowModal(true);
   };
 
+  const getStatusBadge = (status) => {
+    const style = { whiteSpace: "nowrap", fontSize: "0.8rem", padding: "5px 10px" };
+    switch (status) {
+      case "pending":
+        return <span className="badge bg-warning text-dark" style={style}>Pending</span>;
+      case "active":
+        return <span className="badge bg-warning text-dark" style={style}>Pending</span>;
+      case "approved":
+        return <span className="badge bg-success" style={style}>Approved</span>;
+      case "rejected":
+        return <span className="badge bg-danger" style={style}>Rejected</span>;
+      default:
+        return <span className="badge bg-secondary" style={style}>{status || "N/A"}</span>;
+    }
+  };
+
   return (
     <div className="container-fluid px-2 px-md-3 py-2 py-md-4">
       <h3 className="mb-3 mb-md-4 fw-bold" style={{ fontSize: "clamp(1.25rem, 3vw, 1.5rem)" }}>Approval Requests</h3>
+
+      {/* Summary Cards */}
+      <div className="row row-cols-1 row-cols-sm-2 row-cols-md-4 text-center mb-4 mt-4 g-3">
+        {/* Total Requests */}
+        <div className="col">
+          <div className="card dashboardcard text-white fw-semibold h-100 d-flex justify-content-center" style={{ backgroundColor: "#ff6b6b", border: "none" }}>
+            <div className="content d-flex justify-content-start align-items-center p-3">
+              <div className="icon">
+                <i className="fa-solid fa-file-lines rounded-circle p-3" style={{ backgroundColor: "#ff8e8e", fontSize: "1.2rem" }} />
+              </div>
+              <div className="text ms-3 text-start">
+                <h2 className="card-title mb-0 fw-bold">{summaryData?.total || 0}</h2>
+                <p className="mb-0 opacity-75" style={{ fontSize: "0.85rem" }}>Total Requests</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Pending Requests */}
+        <div className="col">
+          <div className="card dashboardcard text-white fw-semibold h-100 d-flex justify-content-center" style={{ backgroundColor: "#ff9318", border: "none" }}>
+            <div className="content d-flex justify-content-start align-items-center p-3">
+              <div className="icon">
+                <i className="fa-solid fa-bolt rounded-circle p-3" style={{ backgroundColor: "#fcc586", fontSize: "1.2rem" }} />
+              </div>
+              <div className="text ms-3 text-start">
+                <h2 className="card-title mb-0 fw-bold">{summaryData?.active || 0}</h2>
+                <p className="mb-0 opacity-75" style={{ fontSize: "0.85rem" }}>Pending</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Approved Requests */}
+        <div className="col">
+          <div className="card dashboardcard text-white fw-semibold h-100 d-flex justify-content-center" style={{ backgroundColor: "#39bf1b", border: "none" }}>
+            <div className="content d-flex justify-content-start align-items-center p-3">
+              <div className="icon">
+                <i className="fa-solid fa-circle-check rounded-circle p-3" style={{ backgroundColor: "#74d25f", fontSize: "1.2rem" }} />
+              </div>
+              <div className="text ms-3 text-start">
+                <h2 className="card-title mb-0 fw-bold">{summaryData?.approved || 0}</h2>
+                <p className="mb-0 opacity-75" style={{ fontSize: "0.85rem" }}>Approved</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Rejected Requests */}
+        <div className="col">
+          <div className="card dashboardcard text-white fw-semibold h-100 d-flex justify-content-center" style={{ backgroundColor: "#dc3545", border: "none" }}>
+            <div className="content d-flex justify-content-start align-items-center p-3">
+              <div className="icon">
+                <i className="fa-solid fa-circle-xmark rounded-circle p-3" style={{ backgroundColor: "#f1868e", fontSize: "1.2rem" }} />
+              </div>
+              <div className="text ms-3 text-start">
+                <h2 className="card-title mb-0 fw-bold">{summaryData?.rejected || 0}</h2>
+                <p className="mb-0 opacity-75" style={{ fontSize: "0.85rem" }}>Rejected</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Filter Section */}
+      <div className="row mb-4 align-items-center g-2">
+        {/* Search Field */}
+        <div className="col-12 col-md-5">
+          <div className="input-group">
+            <span className="input-group-text bg-white border-end-0">
+              <i className="fa-solid fa-magnifying-glass text-muted" style={{ fontSize: "0.85rem" }} />
+            </span>
+            <input
+              type="text"
+              className="form-control border-start-0"
+              placeholder="Search by name, department, supplier, type..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              style={{ fontSize: "0.9rem" }}
+            />
+            {searchTerm && (
+              <button
+                className="btn btn-outline-secondary border-start-0"
+                onClick={() => setSearchTerm("")}
+                title="Clear"
+                style={{ borderLeft: "none" }}
+              >
+                <i className="fa-solid fa-xmark" />
+              </button>
+            )}
+          </div>
+        </div>
+
+        {/* Status Filter */}
+        <div className="col-12 col-md-4 ms-auto">
+          <div className="d-flex align-items-center">
+            <label className="me-2 fw-bold text-nowrap" style={{ fontSize: "0.9rem" }}>Filter by Status:</label>
+            <select 
+              className="form-select" 
+              value={filterStatus}
+              onChange={onFilterChange}
+              style={{ fontSize: "0.9rem" }}
+            >
+              <option value="">All Approvals</option>
+              <option value="pending">Pending</option>
+              <option value="approved">Approved</option>
+              <option value="rejected">Rejected</option>
+            </select>
+          </div>
+        </div>
+      </div>
 
       {loading ? (
         <div className="text-center py-4">
@@ -169,7 +321,7 @@ const ApprovalWork = () => {
         <>
           {/* Mobile Card View */}
           <div className="d-block d-md-none">
-            {approvalData.map((item) => {
+            {filteredData.map((item) => {
               const isAssigned = !!item.assigncontractTemplateId;
               const isEditable = editMode[item.id];
 
@@ -178,6 +330,7 @@ const ApprovalWork = () => {
                   <div className="card-body p-3">
                     <div className="d-flex justify-content-between align-items-start mb-2">
                       <h6 className="card-title mb-0 fw-bold" style={{ fontSize: "clamp(0.9rem, 2.5vw, 1rem)" }}>
+                        <span className="text-muted me-2" style={{ fontSize: "0.8rem" }}>{item.id}</span>
                         Requester Name: {item.requesterName || "N/A"}
                       </h6>
                       <span
@@ -213,11 +366,20 @@ const ApprovalWork = () => {
                         </p>
                       </div>
                       <div className="col-6">
-                        <small className="text-muted d-block" style={{ fontSize: "clamp(0.7rem, 2vw, 0.8rem)" }}>Date:</small>
-                        <p className="mb-1" style={{ fontSize: "clamp(0.75rem, 2.2vw, 0.9rem)" }}>
-                          {new Date(item.createdAt).toLocaleDateString()}
-                        </p>
+                        <small className="text-muted d-block" style={{ fontSize: "clamp(0.7rem, 2vw, 0.8rem)" }}>Status:</small>
+                        <div className="mb-1">
+                          {getStatusBadge(item.status)}
+                        </div>
                       </div>
+                    </div>
+
+                    <div className="row mb-2">
+                       <div className="col-12">
+                         <small className="text-muted d-block" style={{ fontSize: "clamp(0.7rem, 2vw, 0.8rem)" }}>Date:</small>
+                         <p className="mb-1" style={{ fontSize: "clamp(0.75rem, 2.2vw, 0.9rem)" }}>
+                           {new Date(item.createdAt).toLocaleDateString()}
+                         </p>
+                       </div>
                     </div>
 
                     {isAuthorizedUser && (
@@ -301,27 +463,31 @@ const ApprovalWork = () => {
             <table className="table table-bordered text-center align-middle table-striped mb-0">
               <thead className="table-light">
                 <tr>
+                  <th style={{ fontSize: "clamp(0.875rem, 1.5vw, 1rem)", whiteSpace: "nowrap" }}>ID</th>
                   <th style={{ fontSize: "clamp(0.875rem, 1.5vw, 1rem)", whiteSpace: "nowrap" }}>Requester Name</th>
                   <th style={{ fontSize: "clamp(0.875rem, 1.5vw, 1rem)" }}>Requester Department</th>
                   <th style={{ fontSize: "clamp(0.875rem, 1.5vw, 1rem)" }}>Supplier Name</th>
                   <th style={{ fontSize: "clamp(0.875rem, 1.5vw, 1rem)", whiteSpace: "nowrap" }}>Request Date</th>
                   <th style={{ fontSize: "clamp(0.875rem, 1.5vw, 1rem)" }}>Request Type</th>
-                   <th style={{ fontSize: "clamp(0.875rem, 1.5vw, 1rem)" }}>Action</th>
+                  <th style={{ fontSize: "clamp(0.875rem, 1.5vw, 1rem)" }}>Status</th>
+                  <th style={{ fontSize: "clamp(0.875rem, 1.5vw, 1rem)" }}>Action</th>
                   <th style={{ fontSize: "clamp(0.875rem, 1.5vw, 1rem)" }}>Assigned Contract Template</th>
                 </tr>
               </thead>
               <tbody>
-                {approvalData.map((item) => {
+                {filteredData.map((item) => {
                   const isAssigned = !!item.assigncontractTemplateId;
                   const isEditable = editMode[item.id];
 
                   return (
                     <tr key={item.id}>
+                      <td style={{ fontSize: "clamp(0.875rem, 1.5vw, 1rem)", whiteSpace: "nowrap", fontWeight: "600", color: "#6c757d" }}>{item.id}</td>
                       <td style={{ fontSize: "clamp(0.875rem, 1.5vw, 1rem)", wordBreak: "break-word" }}>{item.requesterName || "N/A"}</td>
                       <td style={{ fontSize: "clamp(0.875rem, 1.5vw, 1rem)", wordBreak: "break-word" }}>{item.department?.name || "N/A"}</td>
                       <td style={{ fontSize: "clamp(0.875rem, 1.5vw, 1rem)", wordBreak: "break-word" }}>{item.supplierName}</td>
                       <td style={{ fontSize: "clamp(0.875rem, 1.5vw, 1rem)", whiteSpace: "nowrap" }}>{new Date(item.createdAt).toLocaleDateString()}</td>
                       <td style={{ fontSize: "clamp(0.875rem, 1.5vw, 1rem)", wordBreak: "break-word" }}>{item.requestType}</td>
+                      <td>{getStatusBadge(item.status)}</td>
                       <td>
                         <span
                           role="button"

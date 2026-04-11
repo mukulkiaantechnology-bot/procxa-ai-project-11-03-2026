@@ -111,18 +111,18 @@ exports.getAllCostSavings = async (req, res) => {
       }
     }
 
-    // Associations to include for filtering (Department and Signing Authority)
+    // Associations to include for filtering and display
     let includes = [
+      {
+        model: db.department,
+        as: 'departmentDetails', // Make sure this alias exists in association.js
+        required: departmentId ? true : false,
+        ...(departmentId && { where: { id: departmentId } })
+      },
       {
         model: db.intake_request,
         as: 'intakeRequestDetails',
         include: [
-          {
-            model: db.department,
-            as: 'department',
-            required: departmentId ? true : false,
-            ...(departmentId && { where: { id: departmentId } })
-          },
           {
             model: db.intake_request_approvers,
             as: 'intakeRequestApprovers',
@@ -130,7 +130,12 @@ exports.getAllCostSavings = async (req, res) => {
             ...(signerId && { where: { userId: signerId } })
           }
         ],
-        required: (departmentId || signerId) ? true : false
+        required: signerId ? true : false
+      },
+      {
+        model: db.supplier,
+        as: 'supplierDetails',
+        required: false
       }
     ];
 

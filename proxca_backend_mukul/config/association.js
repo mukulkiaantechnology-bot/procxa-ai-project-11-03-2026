@@ -354,6 +354,38 @@ module.exports = (db) => {
         foreignKey: "intakeRequest",
         as: "costSavings",
     });
+
+    db.costSaving.belongsTo(db.department, {
+        foreignKey: "departmentId",
+        as: "departmentDetails",
+    });
+
+    db.department.hasMany(db.costSaving, {
+        foreignKey: "departmentId",
+        as: "costSavings",
+    });
+
+    db.costSaving.belongsTo(db.supplier, {
+        foreignKey: "supplierName", // Note: The field name is supplierName but it stores the supplier ID
+        as: "supplierDetails",
+        constraints: false
+    });
+
+    db.supplier.hasMany(db.costSaving, {
+        foreignKey: "supplierName",
+        as: "costSavings",
+        constraints: false
+    });
+
+    // ================ contractPreference association ================
+    db.contract_preference.belongsTo(db.intake_request, {
+        foreignKey: "intakeRequestId",
+        as: "intakeDetails",
+    });
+    db.intake_request.hasOne(db.contract_preference, {
+        foreignKey: "intakeRequestId",
+        as: "notificationPreference",
+    });
 };
 
 

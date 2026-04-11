@@ -35,12 +35,14 @@ const get_dashboard_data = async (req, res) => {
             where: { ...adminWhereClause, status: 'approved' }
         });
 
-        // Projects Active: Intake Requests that are in 'pending' or 'active' status (i.e., in progress)
+        // Projects Pending: Intake Requests that are in 'pending' status
+        const projectsPending = await IntakeRequest.count({
+            where: { ...adminWhereClause, status: 'pending' }
+        });
+
+        // Projects Active: Intake Requests that are in 'active' status
         const projectsActive = await IntakeRequest.count({
-            where: { 
-                ...adminWhereClause, 
-                status: { [Op.in]: ['pending', 'active'] } 
-            }
+            where: { ...adminWhereClause, status: 'active' }
         });
 
         const expiringContractsCount = await Contract.count({
@@ -137,6 +139,7 @@ const get_dashboard_data = async (req, res) => {
                 totalIntakeRequests: totalIntakeRequests,
                 totalExpiringContracts: expiringContractsCount,
                 projectsCompleted: projectsCompleted,
+                projectsPending: projectsPending,
                 projectsActive: projectsActive,
             },
             topSuppliers: barGraphData,

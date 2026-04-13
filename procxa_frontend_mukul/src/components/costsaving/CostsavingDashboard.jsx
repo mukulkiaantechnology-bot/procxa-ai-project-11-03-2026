@@ -10,12 +10,15 @@ const CostsavingDashboard = () => {
 
   const [costSavings, setCostSavings] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [summaryData, setSummaryData] = useState(null);
 
   // Filter state
   const [filters, setFilters] = useState({
+    intakeRequestId: "",
     category: "",
     departmentId: "",
     supplierName: "",
+    requesterName: "",
     signerId: "",
     startDate: "",
     endDate: "",
@@ -29,6 +32,7 @@ const CostsavingDashboard = () => {
     categories: [],
     departments: [],
     suppliers: [],
+    intakeRequests: [],
     approvers: []
   });
 
@@ -38,29 +42,44 @@ const CostsavingDashboard = () => {
 
   useEffect(() => {
     fetchOptions();
+    fetchDashboardSummary();
   }, []);
 
   useEffect(() => {
     fetchCostSavings();
   }, [filters]);
 
+  const fetchDashboardSummary = async () => {
+    try {
+      const response = await get(endpoints.getDashboardData);
+      if (response && response.status) {
+        setSummaryData(response.summary || {});
+      }
+    } catch (error) {
+      console.error("Error fetching dashboard summary:", error);
+    }
+  };
+
   const fetchOptions = async () => {
     try {
-      const [cats, depts, sups] = await Promise.all([
+      const [cats, depts, sups, intakes] = await Promise.all([
         get(endpoints.getCategory),
         get(endpoints.getAllDepartments),
-        get(endpoints.getSuppliers)
+        get(endpoints.getSuppliers),
+        get(endpoints.getIntakeRequest)
       ]);
 
       // Extract arrays based on known response structures
       const categoryList = cats?.categories || cats?.data || (Array.isArray(cats) ? cats : []);
       const departmentList = depts?.data || depts?.departments || (Array.isArray(depts) ? depts : []);
       const supplierList = sups?.data || sups?.suppliers || (Array.isArray(sups) ? sups : []);
+      const intakeList = intakes?.data || (Array.isArray(intakes) ? intakes : []);
 
       setOptions({
         categories: Array.isArray(categoryList) ? categoryList : [],
         departments: Array.isArray(departmentList) ? departmentList : [],
         suppliers: Array.isArray(supplierList) ? supplierList : [],
+        intakeRequests: Array.isArray(intakeList) ? intakeList : [],
         approvers: [] // Endpoint for all users/approvers needed if signerId is to be populated
       });
     } catch (error) {
@@ -97,11 +116,45 @@ const CostsavingDashboard = () => {
     setFilters(prev => ({ ...prev, [name]: value }));
   };
 
+  const handleIntakeFilterChange = (e) => {
+    const intakeId = e.target.value;
+    const selectedIntake = options.intakeRequests.find(req => req.id == intakeId);
+
+    if (selectedIntake) {
+      setFilters(prev => {
+        const updated = {
+          ...prev,
+          intakeRequestId: intakeId,
+          departmentId: selectedIntake.requesterDepartmentId || prev.departmentId,
+          category: selectedIntake.categoryId || prev.category,
+          requesterName: selectedIntake.requesterName || prev.requesterName,
+        };
+
+        // Try to match supplier ID if possible
+        const sName = selectedIntake.supplier?.name || selectedIntake.supplierName;
+        if (sName) {
+          const matchingSupplier = options.suppliers.find(
+            s => s.name.toLowerCase() === sName.toLowerCase()
+          );
+          if (matchingSupplier) {
+            updated.supplierName = matchingSupplier.id;
+          }
+        }
+
+        return updated;
+      });
+    } else {
+      setFilters(prev => ({ ...prev, intakeRequestId: intakeId }));
+    }
+  };
+
   const clearFilters = () => {
     setFilters({
+      intakeRequestId: "",
       category: "",
       departmentId: "",
       supplierName: "",
+      requesterName: "",
       signerId: "",
       startDate: "",
       endDate: "",
@@ -153,7 +206,8 @@ const CostsavingDashboard = () => {
 
       {/* Summary Cards */}
       <div className="row text-center mb-4 g-2">
-        <div className="col-12 col-sm-6 col-lg-4 mb-2">
+        {/* Total Records */}
+        <div className="col-12 col-sm-6 col-lg-3 mb-2">
           <div className="card portalcard text-white fw-semibold h-100" style={{ backgroundColor: "#ff6567" }}>
             {/* Mobile Layout - Vertical */}
             <div className="content d-flex d-md-none flex-column justify-content-center align-items-center p-3">
@@ -179,7 +233,8 @@ const CostsavingDashboard = () => {
           </div>
         </div>
 
-        <div className="col-12 col-sm-6 col-lg-4 mb-2">
+        {/* Est. Total Savings */}
+        <div className="col-12 col-sm-6 col-lg-3 mb-2">
           <div className="card portalcard text-white fw-semibold h-100" style={{ backgroundColor: "#ff9318" }}>
             {/* Mobile Layout - Vertical */}
             <div className="content d-flex d-md-none flex-column justify-content-center align-items-center p-3">
@@ -205,27 +260,55 @@ const CostsavingDashboard = () => {
           </div>
         </div>
 
-        <div className="col-12 col-sm-6 col-lg-4 mb-2">
-          <div className="card portalcard text-white fw-semibold h-100" style={{ backgroundColor: "#39bf1b" }}>
+        {/* Projects Active */}
+        <div className="col-12 col-sm-6 col-lg-3 mb-2">
+          <div className="card portalcard text-white fw-semibold h-100" style={{ backgroundColor: "#0d6efd" }}>
             {/* Mobile Layout - Vertical */}
             <div className="content d-flex d-md-none flex-column justify-content-center align-items-center p-3">
               <div className="icon-wrapper mb-2">
-                <i className="fa-solid fa-chart-line rounded-circle p-3" style={{ backgroundColor: "#74d25f", fontSize: "clamp(1.5rem, 4vw, 2rem)", display: "flex", alignItems: "center", justifyContent: "center" }} />
+                <i className="fa-solid fa-bolt rounded-circle p-3" style={{ backgroundColor: "#5f9bf6", fontSize: "clamp(1.5rem, 4vw, 2rem)", display: "flex", alignItems: "center", justifyContent: "center" }} />
               </div>
               <div className="text text-center">
-                <h2 className="card-title mb-1 fw-bold" style={{ fontSize: "clamp(1.5rem, 4vw, 2rem)" }}>{totalRecords > 0 ? [...new Set(costSavings.map(s => s.typeOfCostSaving))].length : 0}</h2>
-                <p className="mb-0" style={{ fontSize: "clamp(0.75rem, 2.2vw, 0.9rem)" }}>Active Programs</p>
+                <h2 className="card-title mb-1 fw-bold" style={{ fontSize: "clamp(1.5rem, 4vw, 2rem)" }}>{summaryData?.projectsActive || 0}</h2>
+                <p className="mb-0" style={{ fontSize: "clamp(0.75rem, 2.2vw, 0.9rem)" }}>Projects Active</p>
               </div>
             </div>
 
             {/* Desktop Layout - Horizontal */}
             <div className="content d-none d-md-flex justify-content-start align-items-center p-2 p-md-3">
               <div className="icon-wrapper flex-shrink-0">
-                <i className="fa-solid fa-chart-line rounded-circle p-2 p-md-3" style={{ backgroundColor: "#74d25f", fontSize: "clamp(1.3rem, 3.5vw, 1.8rem)", display: "flex", alignItems: "center", justifyContent: "center" }} />
+                <i className="fa-solid fa-bolt rounded-circle p-2 p-md-3" style={{ backgroundColor: "#5f9bf6", fontSize: "clamp(1.3rem, 3.5vw, 1.8rem)", display: "flex", alignItems: "center", justifyContent: "center" }} />
               </div>
               <div className="text ms-2 ms-md-3 flex-grow-1 text-start">
-                <h2 className="card-title mb-0 fw-bold" style={{ fontSize: "clamp(1.3rem, 3.5vw, 1.8rem)" }}>{totalRecords > 0 ? [...new Set(costSavings.map(s => s.typeOfCostSaving))].length : 0}</h2>
-                <p className="mb-0" style={{ fontSize: "clamp(0.75rem, 2.2vw, 0.9rem)" }}>Active Programs</p>
+                <h2 className="card-title mb-0 fw-bold" style={{ fontSize: "clamp(1.3rem, 3.5vw, 1.8rem)" }}>{summaryData?.projectsActive || 0}</h2>
+                <p className="mb-0" style={{ fontSize: "clamp(0.75rem, 2.2vw, 0.9rem)" }}>Projects Active</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Projects Completed */}
+        <div className="col-12 col-sm-6 col-lg-3 mb-2">
+          <div className="card portalcard text-white fw-semibold h-100" style={{ backgroundColor: "#39bf1b" }}>
+            {/* Mobile Layout - Vertical */}
+            <div className="content d-flex d-md-none flex-column justify-content-center align-items-center p-3">
+              <div className="icon-wrapper mb-2">
+                <i className="fa-solid fa-check-circle rounded-circle p-3" style={{ backgroundColor: "#74d25f", fontSize: "clamp(1.5rem, 4vw, 2rem)", display: "flex", alignItems: "center", justifyContent: "center" }} />
+              </div>
+              <div className="text text-center">
+                <h2 className="card-title mb-1 fw-bold" style={{ fontSize: "clamp(1.5rem, 4vw, 2rem)" }}>{summaryData?.projectsCompleted || 0}</h2>
+                <p className="mb-0" style={{ fontSize: "clamp(0.75rem, 2.2vw, 0.9rem)" }}>Projects Completed</p>
+              </div>
+            </div>
+
+            {/* Desktop Layout - Horizontal */}
+            <div className="content d-none d-md-flex justify-content-start align-items-center p-2 p-md-3">
+              <div className="icon-wrapper flex-shrink-0">
+                <i className="fa-solid fa-check-circle rounded-circle p-2 p-md-3" style={{ backgroundColor: "#74d25f", fontSize: "clamp(1.3rem, 3.5vw, 1.8rem)", display: "flex", alignItems: "center", justifyContent: "center" }} />
+              </div>
+              <div className="text ms-2 ms-md-3 flex-grow-1 text-start">
+                <h2 className="card-title mb-0 fw-bold" style={{ fontSize: "clamp(1.3rem, 3.5vw, 1.8rem)" }}>{summaryData?.projectsCompleted || 0}</h2>
+                <p className="mb-0" style={{ fontSize: "clamp(0.75rem, 2.2vw, 0.9rem)" }}>Projects Completed</p>
               </div>
             </div>
           </div>
@@ -273,7 +356,24 @@ const CostsavingDashboard = () => {
         }}>
           <div className="p-3 bg-white border-top">
             <div className="row g-3">
-              <div className="col-12 col-md-3">
+              <div className="col-12 col-md-4">
+                <label className="form-label small fw-bold text-muted">Intake Request</label>
+                <select 
+                  className="form-select shadow-none" 
+                  name="intakeRequestId" 
+                  value={filters.intakeRequestId} 
+                  onChange={handleIntakeFilterChange}
+                >
+                  <option value="">Select Intake Request</option>
+                  {options.intakeRequests.map(req => (
+                    <option key={req.id} value={req.id}>
+                      {`${req.id} - ${req.requesterName} - ${req.requestType}`}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="col-12 col-md-4">
                 <label className="form-label small fw-bold text-muted">Category</label>
                 <select className="form-select shadow-none" name="category" value={filters.category} onChange={handleFilterChange}>
                   <option value="">All Categories</option>
@@ -283,7 +383,7 @@ const CostsavingDashboard = () => {
                 </select>
               </div>
 
-              <div className="col-12 col-md-3">
+              <div className="col-12 col-md-4">
                 <label className="form-label small fw-bold text-muted">Department</label>
                 <select className="form-select shadow-none" name="departmentId" value={filters.departmentId} onChange={handleFilterChange}>
                   <option value="">All Departments</option>
@@ -306,6 +406,18 @@ const CostsavingDashboard = () => {
                     <option key={sup.id} value={sup.id}>{sup.name}</option>
                   ))}
                 </select>
+              </div>
+
+              <div className="col-12 col-md-3">
+                <label className="form-label small fw-bold text-muted">Requester</label>
+                <input 
+                  type="text" 
+                  className="form-control shadow-none" 
+                  name="requesterName" 
+                  placeholder="Requester Name" 
+                  value={filters.requesterName} 
+                  onChange={handleFilterChange} 
+                />
               </div>
 
               <div className="col-12 col-md-3">

@@ -31,8 +31,10 @@ const allowedOrigins = [
   'http://localhost:5173',           // Vite dev server (default)
   'http://localhost:3000',           // Alternative local port
   'http://localhost:5174',           // Alternative Vite port
-  'https://procxa-ai-backend-production.up.railway.app', // Railway backend (for API calls from same domain)
-  'https://proxa-ai-new.kiaantechnology.com', // Live frontend URL
+  // 'https://procxa-ai-backend-production.up.railway.app', // Railway backend (for API calls from same domain)
+  'https://proxa-ai-backend-production-9800.up.railway.app',
+  // 'https://proxa-ai-new.kiaantechnology.com', // Live frontend URL
+  'https://procxa.kiaansoftware.com',
   process.env.FRONTEND_URL,          // Production frontend URL from env
   process.env.CLIENT_URL,            // Alternative env variable name
 ].filter(Boolean); // Remove undefined values

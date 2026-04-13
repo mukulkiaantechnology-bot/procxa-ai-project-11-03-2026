@@ -58,6 +58,35 @@ const CostSavingForm = () => {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
+  const handleIntakeChange = (e) => {
+    const intakeId = e.target.value;
+    const selectedIntake = intakeRequests.find((req) => req.id == intakeId);
+
+    setFormData((prev) => {
+      const updatedData = { ...prev, intakeRequest: intakeId };
+
+      if (selectedIntake) {
+        // Autofill fields
+        updatedData.requesterName = selectedIntake.requesterName || "";
+        updatedData.departmentId = selectedIntake.requesterDepartmentId || "";
+        updatedData.category = selectedIntake.categoryId || "";
+
+        // Find supplier ID by name from the fetched suppliers list
+        const sName = selectedIntake.supplier?.name || selectedIntake.supplierName;
+        if (sName) {
+          const matchingSupplier = suppliers.find(
+            (s) => s.name.toLowerCase() === sName.toLowerCase()
+          );
+          if (matchingSupplier) {
+            updatedData.supplierName = matchingSupplier.id;
+          }
+        }
+      }
+
+      return updatedData;
+    });
+  };
+
   const handleForecastChange = (year, item, value) => {
     setFormData((prev) => {
       const years = Object.keys(prev.forecastVolumes).sort();
@@ -386,6 +415,27 @@ const CostSavingForm = () => {
       <form onSubmit={handleSubmit}>
         <div className="row">
 
+
+          <div className="mb-3 col-12 col-md-6 col-lg-4">
+            <label htmlFor="intakeRequest" className="form-label">
+              Select Intake Request
+            </label>
+            <select
+              id="intakeRequest"
+              name="intakeRequest"
+              className="form-select"
+              value={formData.intakeRequest || ""}
+              onChange={handleIntakeChange}
+            >
+              <option value="">Select Request</option>
+              {intakeRequests.map((request) => (
+                <option key={request.id} value={request.id}>
+                  {`${request.id} - ${request.requesterName} -${request.requestType} - ${request.department?.name}`}
+                </option>
+              ))}
+            </select>
+          </div>
+
           <div className="mb-3 col-12 col-md-6 col-lg-4">
             <label htmlFor="supplierName" className="form-label">
               Select Spplier Name
@@ -447,7 +497,7 @@ const CostSavingForm = () => {
             </select>
           </div>
 
-          <div className="mb-3 col-12 col-md-6 col-lg-4">
+          {/* <div className="mb-3 col-12 col-md-6 col-lg-4">
             <label htmlFor="reportingYear" className="form-label">Reporting Year</label>
             <input
               type="number"
@@ -457,7 +507,7 @@ const CostSavingForm = () => {
               value={formData.reportingYear}
               onChange={handleChange}
             />
-          </div>
+          </div> */}
 
           {/* <div className="mb-3 col-12 col-md-6 col-lg-4">
               <label htmlFor="category" className="form-label">
@@ -499,6 +549,18 @@ const CostSavingForm = () => {
           </div>
 
           <div className="mb-3 col-12 col-md-6 col-lg-4">
+            <label htmlFor="reportingYear" className="form-label">Reporting Year</label>
+            <input
+              type="number"
+              id="reportingYear"
+              name="reportingYear"
+              className="form-control"
+              value={formData.reportingYear}
+              onChange={handleChange}
+            />
+          </div>
+
+          {/* <div className="mb-3 col-12 col-md-6 col-lg-4">
             <label htmlFor="intakeRequest" className="form-label">
               Select Intake Request
             </label>
@@ -507,7 +569,7 @@ const CostSavingForm = () => {
               name="intakeRequest"
               className="form-select"
               value={formData.intakeRequest || ""}
-              onChange={handleChange}
+              onChange={handleIntakeChange}
             >
               <option value="">Select Request</option>
               {intakeRequests.map((request) => (
@@ -516,7 +578,7 @@ const CostSavingForm = () => {
                 </option>
               ))}
             </select>
-          </div>
+          </div> */}
 
           <div className="mb-3 col-12 col-md-6 col-lg-4">
             <label htmlFor="typeOfCostSaving" className="form-label">
